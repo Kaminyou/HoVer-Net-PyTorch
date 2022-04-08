@@ -1,6 +1,7 @@
 import abc
 import os
 
+import cv2
 import numpy as np
 from imgaug import augmenters as iaa
 from torch.utils.data import DataLoader, Dataset
@@ -207,18 +208,73 @@ class PanNuckDataset(HoVerDatasetBase):
 
         return shape_augs, input_augs
 
+class PanNuckInferenceDataset(HoVerDatasetBase):
+    """Data Loader. Loads images from a file list and 
+    performs augmentation with the albumentation library.
+    After augmentation, horizontal and vertical maps are 
+    generated.
+    Args:
+        file_list: list of filenames to load
+        input_shape: shape of the input [h,w] - defined in config.py
+        mask_shape: shape of the output [h,w] - defined in config.py
+        mode: 'train' or 'valid'
+        
+    """
 
-def get_dataloader(dataset_type, data_path, with_type, input_shape, mask_shape, run_mode):
+    # TODO: doc string
+
+    def __init__(
+        self,
+        data_path,
+        input_shape=None,
+    ):
+        assert input_shape is not None
+        self.data_path = data_path
+        self.load_all_data()
+
+        self.input_shape = input_shape
+        self.id = 0
+
+    def load_all_data(self):
+        data_list = os.listdir(self.data_path)
+        self.data = []
+        for data_name in data_list:
+            if not data_name.rsplit('.', 1)[1] in ["png", "jpg", "tiff"]: continue
+            self.data.append(os.path.join(self.data_path, data_name))
+
+    def load_data(self, idx):
+        image = cv2.imread(self.data[idx])
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB).astype("uint8")
+        return image
+    
+    def __len__(self):
+        return len(self.data)
+
+    def __getitem__(self, idx):
+        img = self.load_data(idx)
+        img = cropping_center(img, self.input_shape)
+        return img
+
+
+def get_dataloader(dataset_type, data_path, with_type=True, input_shape=None, mask_shape=None, batch_size=1, run_mode="train"):
     if dataset_type.lower() == "pannuck":
-        dataset = PanNuckDataset(
-            data_path=data_path,
-            with_type=with_type,
-            input_shape=input_shape,
-            mask_shape=mask_shape,
-            run_mode=run_mode,
-            setup_augmentor=True)
+        if run_mode == "inference":
+            dataset = PanNuckInferenceDataset(
+                data_path=data_path, 
+                input_shape=input_shape
+            )
+        else:
+            dataset = PanNuckDataset(
+                data_path=data_path,
+                with_type=with_type,
+                input_shape=input_shape,
+                mask_shape=mask_shape,
+                run_mode=run_mode,
+                setup_augmentor=True
+            )
     else:
         raise NotImplementedError
+
     sulffle = True if run_mode == "train" else False
-    dataloader = DataLoader(dataset, batch_size=1, shuffle=sulffle, num_workers=8, pin_memory=True)
+    dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=sulffle, num_workers=8, pin_memory=True)
     return dataloader
