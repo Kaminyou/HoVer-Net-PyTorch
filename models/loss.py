@@ -54,7 +54,7 @@ def mse_loss(true, pred):
 
 
 ####
-def msge_loss(true, pred, focus):
+def msge_loss(true, pred, focus, device="cuda"):
     """Calculate the mean squared error of the gradients of 
     horizontal and vertical map predictions. Assumes 
     channel 0 is Vertical and channel 1 is Horizontal.
@@ -80,14 +80,14 @@ def msge_loss(true, pred, focus):
             -size // 2 + 1,
             size // 2 + 1,
             dtype=torch.float32,
-            device="cuda",
+            device=device,
             requires_grad=False,
         )
         v_range = torch.arange(
             -size // 2 + 1,
             size // 2 + 1,
             dtype=torch.float32,
-            device="cuda",
+            device=device,
             requires_grad=False,
         )
         h, v = torch.meshgrid(h_range, v_range)
