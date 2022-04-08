@@ -1,7 +1,7 @@
 import numpy as np
+from scipy import ndimage
 from scipy.ndimage import measurements
 from skimage import morphology as morph
-from scipy import ndimage
 
 
 def cropping_center(x, crop_shape, batch=False):
