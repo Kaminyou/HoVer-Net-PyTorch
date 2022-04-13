@@ -4,14 +4,9 @@ import cv2
 import numpy as np
 from imgaug import augmenters as iaa
 
-from dataloader.augmentation import (
-    add_to_brightness,
-    add_to_contrast,
-    add_to_hue,
-    add_to_saturation,
-    gaussian_blur,
-    median_blur,
-)
+from dataloader.augmentation import (add_to_brightness, add_to_contrast,
+                                     add_to_hue, add_to_saturation,
+                                     gaussian_blur, median_blur)
 from dataloader.preprocessing import cropping_center, gen_targets
 from datasets.hover_dataset import HoVerDatasetBase
 

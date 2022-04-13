@@ -6,14 +6,9 @@ from PIL import Image
 from pycocotools.coco import COCO
 from torch.utils.data import Dataset
 
-from dataloader.augmentation import (
-    add_to_brightness,
-    add_to_contrast,
-    add_to_hue,
-    add_to_saturation,
-    gaussian_blur,
-    median_blur,
-)
+from dataloader.augmentation import (add_to_brightness, add_to_contrast,
+                                     add_to_hue, add_to_saturation,
+                                     gaussian_blur, median_blur)
 from dataloader.preprocessing import cropping_center, gen_targets
 
 
