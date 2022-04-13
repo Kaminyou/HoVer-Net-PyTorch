@@ -11,7 +11,7 @@ from process.validate import valid_step
 from tools.utils import update_accumulated_output
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser("Train model with dataset in COCO format")
+    parser = argparse.ArgumentParser("Train model with PanNuck dataset")
     parser.add_argument(
         "--train_data_path",
         type=str,
