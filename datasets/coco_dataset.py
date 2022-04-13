@@ -190,7 +190,7 @@ class COCODataset(Dataset):
 
         img_info = self.data_infos[idx]
         instance_mask, category_mask = self.get_annotation(idx)
-
+        img_id = img_info["id"]
         # PIL image
         image = Image.open(
             os.path.join(img_info["data_root"], img_info["filename"])
@@ -209,7 +209,7 @@ class COCODataset(Dataset):
             image = input_augs.augment_image(image)
 
         image = cropping_center(image, self.input_shape)
-        feed_dict = {"img": image.copy()}
+        feed_dict = {"img": image.copy(), "img_id":img_id}
 
         category_mask = cropping_center(category_mask, self.mask_shape)
         feed_dict["tp_map"] = category_mask.copy()
