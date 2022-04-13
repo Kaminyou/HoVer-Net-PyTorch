@@ -12,6 +12,7 @@ from dataloader.augmentation import (add_to_brightness, add_to_contrast,
                                      gaussian_blur, median_blur)
 from dataloader.preprocessing import cropping_center, gen_targets
 
+
 class COCODataset(Dataset):
     """`MS Coco Detection <http://mscoco.org/dataset/#detections-challenge2016>`_ Dataset.
 
