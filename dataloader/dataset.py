@@ -5,21 +5,20 @@ from datasets.pannuck_dataset import PanNuckDataset, PanNuckInferenceDataset
 
 
 def get_dataloader(
-    dataset_type, 
-    data_path=None, 
-    with_type=True, 
-    input_shape=None, 
-    mask_shape=None, 
-    batch_size=1, 
+    dataset_type,
+    data_path=None,
+    with_type=True,
+    input_shape=None,
+    mask_shape=None,
+    batch_size=1,
     run_mode="train",
     ann_file=None,
-    classes=None
+    classes=None,
 ):
     if dataset_type.lower() == "pannuck":
         if run_mode == "inference":
             dataset = PanNuckInferenceDataset(
-                data_path=data_path, 
-                input_shape=input_shape
+                data_path=data_path, input_shape=input_shape
             )
         else:
             dataset = PanNuckDataset(
@@ -28,7 +27,7 @@ def get_dataloader(
                 input_shape=input_shape,
                 mask_shape=mask_shape,
                 run_mode=run_mode,
-                setup_augmentor=True
+                setup_augmentor=True,
             )
     elif dataset_type.lower() == "coco":
         if run_mode == "inference":
@@ -42,11 +41,17 @@ def get_dataloader(
                 classes=classes,
                 input_shape=input_shape,
                 mask_shape=mask_shape,
-                test_mode=test_mode
+                test_mode=test_mode,
             )
     else:
         raise NotImplementedError
 
     sulffle = True if run_mode == "train" else False
-    dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=sulffle, num_workers=8, pin_memory=True)
+    dataloader = DataLoader(
+        dataset,
+        batch_size=batch_size,
+        shuffle=sulffle,
+        num_workers=8,
+        pin_memory=True
+    )
     return dataloader

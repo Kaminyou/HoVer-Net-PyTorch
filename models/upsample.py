@@ -25,5 +25,7 @@ class UpSample2x(nn.Module):
         mat = self.unpool_mat.unsqueeze(0)  # 1xshxsw
         ret = torch.tensordot(x, mat, dims=1)  # bxcxhxwxshxsw
         ret = ret.permute(0, 1, 2, 4, 3, 5)
-        ret = ret.reshape((-1, input_shape[1], input_shape[2] * 2, input_shape[3] * 2))
+        ret = ret.reshape(
+            (-1, input_shape[1], input_shape[2] * 2, input_shape[3] * 2)
+        )
         return ret

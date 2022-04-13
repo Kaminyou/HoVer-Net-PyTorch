@@ -11,20 +11,20 @@ class HoVerNetExt(nn.Module):
     """Initialise HoVer-Net."""
 
     def __init__(
-            self,
-            num_types=None,
-            freeze=False,
-            pretrained_backbone=None,
-            ):
+        self,
+        num_types=None,
+        freeze=False,
+        pretrained_backbone=None,
+    ):
         super().__init__()
         self.freeze = freeze
         self.num_types = num_types
         self.output_ch = 3 if num_types is None else 4
 
-        self.backbone = ResNetExt.resnet50(
-            3, pretrained=pretrained_backbone)
+        self.backbone = ResNetExt.resnet50(3, pretrained=pretrained_backbone)
         self.conv_bot = nn.Conv2d(
-            2048, 1024, 1, stride=1, padding=0, bias=False)
+            2048, 1024, 1, stride=1, padding=0, bias=False
+        )
 
         def create_decoder_branch(out_ch=2, ksize=5):
             pad = ksize // 2
@@ -73,7 +73,9 @@ class HoVerNetExt(nn.Module):
             self.decoder = nn.ModuleDict(
                 OrderedDict(
                     [
-                        ("tp", create_decoder_branch(ksize=ksize, out_ch=num_types)),
+                        ("tp", create_decoder_branch(
+                            ksize=ksize, out_ch=num_types
+                        )),
                         ("np", create_decoder_branch(ksize=ksize, out_ch=2)),
                         ("hv", create_decoder_branch(ksize=ksize, out_ch=2)),
                     ]

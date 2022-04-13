@@ -20,7 +20,7 @@ def __proc_np_hv(pred):
     """Process Nuclei Prediction with XY Coordinate Map.
 
     Args:
-        pred: prediction output, assuming 
+        pred: prediction output, assuming
               channel 0 contain probability map of nuclei
               channel 1 containing the regressed X-map
               channel 2 containing the regressed Y-map
@@ -40,10 +40,20 @@ def __proc_np_hv(pred):
     blb[blb > 0] = 1  # background is 0 already
 
     h_dir = cv2.normalize(
-        h_dir_raw, None, alpha=0, beta=1, norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_32F
+        h_dir_raw,
+        None,
+        alpha=0,
+        beta=1,
+        norm_type=cv2.NORM_MINMAX,
+        dtype=cv2.CV_32F
     )
     v_dir = cv2.normalize(
-        v_dir_raw, None, alpha=0, beta=1, norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_32F
+        v_dir_raw,
+        None,
+        alpha=0,
+        beta=1,
+        norm_type=cv2.NORM_MINMAX,
+        dtype=cv2.CV_32F
     )
 
     sobelh = cv2.Sobel(h_dir, cv2.CV_64F, 1, 0, ksize=21)
@@ -51,12 +61,22 @@ def __proc_np_hv(pred):
 
     sobelh = 1 - (
         cv2.normalize(
-            sobelh, None, alpha=0, beta=1, norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_32F
+            sobelh,
+            None,
+            alpha=0,
+            beta=1,
+            norm_type=cv2.NORM_MINMAX,
+            dtype=cv2.CV_32F
         )
     )
     sobelv = 1 - (
         cv2.normalize(
-            sobelv, None, alpha=0, beta=1, norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_32F
+            sobelv,
+            None,
+            alpha=0,
+            beta=1,
+            norm_type=cv2.NORM_MINMAX,
+            dtype=cv2.CV_32F
         )
     )
 
@@ -65,7 +85,7 @@ def __proc_np_hv(pred):
     overall[overall < 0] = 0
 
     dist = (1.0 - overall) * blb
-    ## nuclei values form mountains so inverse to get basins
+    # nuclei values form mountains so inverse to get basins
     dist = -cv2.GaussianBlur(dist, (3, 3), 0)
 
     overall = np.array(overall >= 0.4, dtype=np.int32)
@@ -89,16 +109,18 @@ def process(pred_map, nr_types=None, return_centroids=False):
 
     Args:
         pred_map::np.array(H, W, 4)
-            commbined output of tp, np and hv branches, in the same order => [H, W, 4] || 4=(tp, np, h, v)
+            commbined output of tp, np and hv branches, in the same order
+            => [H, W, 4] || 4=(tp, np, h, v)
         nr_types::int
             number of types considered at output of nc branch
-        overlaid_img: img to overlay the predicted instances upon, `None` means no
-        type_colour (dict) : `None` to use random, else overlay instances of a type to colour in the dict
+        overlaid_img: img to overlay the predicted instances upon, `None` means
+            no type_colour (dict) : `None` to use random, else overlay
+            instances of a type to colour in the dict
         output_dtype: data type of output
-    
+
     Returns:
         pred_inst:     pixel-wise nuclear instance segmentation prediction
-        pred_type_out: pixel-wise nuclear type prediction 
+        pred_type_out: pixel-wise nuclear type prediction
 
     """
     if nr_types is not None:
@@ -121,7 +143,8 @@ def process(pred_map, nr_types=None, return_centroids=False):
             rmin, rmax, cmin, cmax = get_bounding_box(inst_map)
             inst_bbox = np.array([[rmin, cmin], [rmax, cmax]])
             inst_map = inst_map[
-                inst_bbox[0][0] : inst_bbox[1][0], inst_bbox[0][1] : inst_bbox[1][1]
+                inst_bbox[0][0]:inst_bbox[1][0],
+                inst_bbox[0][1]:inst_bbox[1][1]
             ]
             inst_map = inst_map.astype(np.uint8)
             inst_moment = cv2.moments(inst_map)
@@ -135,7 +158,7 @@ def process(pred_map, nr_types=None, return_centroids=False):
             if inst_contour.shape[0] < 3:
                 continue
             if len(inst_contour.shape) != 2:
-                continue # ! check for trickery shape
+                continue  # ! check for trickery shape
             inst_centroid = [
                 (inst_moment["m10"] / inst_moment["m00"]),
                 (inst_moment["m01"] / inst_moment["m00"]),
@@ -154,9 +177,11 @@ def process(pred_map, nr_types=None, return_centroids=False):
             }
 
     if nr_types is not None:
-        #### * Get class of each instance id, stored at index id-1
+        # * Get class of each instance id, stored at index id-1
         for inst_id in list(inst_info_dict.keys()):
-            rmin, cmin, rmax, cmax = (inst_info_dict[inst_id]["bbox"]).flatten()
+            rmin, cmin, rmax, cmax = (
+                inst_info_dict[inst_id]["bbox"]
+            ).flatten()
             inst_map_crop = pred_inst[rmin:rmax, cmin:cmax]
             inst_type_crop = pred_type[rmin:rmax, cmin:cmax]
             inst_map_crop = (

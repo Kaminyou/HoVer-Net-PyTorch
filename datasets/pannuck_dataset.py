@@ -4,24 +4,29 @@ import cv2
 import numpy as np
 from imgaug import augmenters as iaa
 
-from dataloader.augmentation import (add_to_brightness, add_to_contrast,
-                                     add_to_hue, add_to_saturation,
-                                     gaussian_blur, median_blur)
+from dataloader.augmentation import (
+    add_to_brightness,
+    add_to_contrast,
+    add_to_hue,
+    add_to_saturation,
+    gaussian_blur,
+    median_blur,
+)
 from dataloader.preprocessing import cropping_center, gen_targets
 from datasets.hover_dataset import HoVerDatasetBase
 
 
 class PanNuckDataset(HoVerDatasetBase):
-    """Data Loader. Loads images from a file list and 
+    """Data Loader. Loads images from a file list and
     performs augmentation with the albumentation library.
-    After augmentation, horizontal and vertical maps are 
+    After augmentation, horizontal and vertical maps are
     generated.
     Args:
         file_list: list of filenames to load
         input_shape: shape of the input [h,w] - defined in config.py
         mask_shape: shape of the output [h,w] - defined in config.py
         mode: 'train' or 'valid'
-        
+
     """
 
     # TODO: doc string
@@ -59,21 +64,22 @@ class PanNuckDataset(HoVerDatasetBase):
         data_list = os.listdir(self.data_path)
         self.data = []
         for data_name in data_list:
-            if data_name.rsplit('.', 1)[1] != "npy": continue
+            if data_name.rsplit(".", 1)[1] != "npy":
+                continue
             self.data.append(os.path.join(self.data_path, data_name))
 
     def load_data(self, idx):
         data = np.load(self.data[idx])
-        img = data[:, :, :3][:, :, ::-1].astype("uint8") # BGR -> RGB
+        img = data[:, :, :3][:, :, ::-1].astype("uint8")  # BGR -> RGB
         ann = data[:, :, 3:].astype("int32")
         return img, ann
-    
+
     def __len__(self):
         return len(self.data)
 
     def __getitem__(self, idx):
         img, ann = self.load_data(idx)
-        
+
         if self.shape_augs is not None:
             shape_augs = self.shape_augs.to_deterministic()
             img = shape_augs.augment_image(img)
@@ -92,9 +98,7 @@ class PanNuckDataset(HoVerDatasetBase):
             type_map = cropping_center(type_map, self.mask_shape)
             feed_dict["tp_map"] = type_map
 
-        target_dict = gen_targets(
-            inst_map, self.mask_shape
-        )
+        target_dict = gen_targets(inst_map, self.mask_shape)
         feed_dict.update(target_dict)
 
         return feed_dict
@@ -125,9 +129,7 @@ class PanNuckDataset(HoVerDatasetBase):
                 # set position to 'center' for center crop
                 # else 'uniform' for random crop
                 iaa.CropToFixedSize(
-                    self.input_shape[0],
-                    self.input_shape[1],
-                    position="center"
+                    self.input_shape[0], self.input_shape[1], position="center"
                 ),
                 iaa.Fliplr(0.5, seed=rng),
                 iaa.Flipud(0.5, seed=rng),
@@ -138,11 +140,15 @@ class PanNuckDataset(HoVerDatasetBase):
                     [
                         iaa.Lambda(
                             seed=rng,
-                            func_images=lambda *args: gaussian_blur(*args, max_ksize=3),
+                            func_images=lambda *args: gaussian_blur(
+                                *args, max_ksize=3
+                            ),
                         ),
                         iaa.Lambda(
                             seed=rng,
-                            func_images=lambda *args: median_blur(*args, max_ksize=3),
+                            func_images=lambda *args: median_blur(
+                                *args, max_ksize=3
+                            ),
                         ),
                         iaa.AdditiveGaussianNoise(
                             loc=0, scale=(0.0, 0.05 * 255), per_channel=0.5
@@ -153,7 +159,9 @@ class PanNuckDataset(HoVerDatasetBase):
                     [
                         iaa.Lambda(
                             seed=rng,
-                            func_images=lambda *args: add_to_hue(*args, range=(-8, 8)),
+                            func_images=lambda *args: add_to_hue(
+                                *args, range=(-8, 8)
+                            ),
                         ),
                         iaa.Lambda(
                             seed=rng,
@@ -189,17 +197,18 @@ class PanNuckDataset(HoVerDatasetBase):
 
         return shape_augs, input_augs
 
+
 class PanNuckInferenceDataset(HoVerDatasetBase):
-    """Data Loader. Loads images from a file list and 
+    """Data Loader. Loads images from a file list and
     performs augmentation with the albumentation library.
-    After augmentation, horizontal and vertical maps are 
+    After augmentation, horizontal and vertical maps are
     generated.
     Args:
         file_list: list of filenames to load
         input_shape: shape of the input [h,w] - defined in config.py
         mask_shape: shape of the output [h,w] - defined in config.py
         mode: 'train' or 'valid'
-        
+
     """
 
     # TODO: doc string
@@ -220,14 +229,15 @@ class PanNuckInferenceDataset(HoVerDatasetBase):
         data_list = os.listdir(self.data_path)
         self.data = []
         for data_name in data_list:
-            if not data_name.rsplit('.', 1)[1] in ["png", "jpg", "tiff"]: continue
+            if not data_name.rsplit(".", 1)[1] in ["png", "jpg", "tiff"]:
+                continue
             self.data.append(os.path.join(self.data_path, data_name))
 
     def load_data(self, idx):
         image = cv2.imread(self.data[idx])
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB).astype("uint8")
         return image
-    
+
     def __len__(self):
         return len(self.data)
 

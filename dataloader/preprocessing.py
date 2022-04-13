@@ -9,21 +9,22 @@ def cropping_center(x, crop_shape, batch=False):
     Args:
         x: input array
         crop_shape: dimensions of cropped array
-    
+
     Returns:
         x: cropped array
-    
+
     """
     orig_shape = x.shape
     if not batch:
         h0 = int((orig_shape[0] - crop_shape[0]) * 0.5)
         w0 = int((orig_shape[1] - crop_shape[1]) * 0.5)
-        x = x[h0 : h0 + crop_shape[0], w0 : w0 + crop_shape[1]]
+        x = x[h0:h0 + crop_shape[0], w0:w0 + crop_shape[1]]
     else:
         h0 = int((orig_shape[1] - crop_shape[0]) * 0.5)
         w0 = int((orig_shape[2] - crop_shape[1]) * 0.5)
-        x = x[:, h0 : h0 + crop_shape[0], w0 : w0 + crop_shape[1]]
+        x = x[:, h0:h0 + crop_shape[0], w0:w0 + crop_shape[1]]
     return x
+
 
 def get_bounding_box(img):
     """Get bounding box coordinate information."""
@@ -37,10 +38,11 @@ def get_bounding_box(img):
     cmax += 1
     return [rmin, rmax, cmin, cmax]
 
+
 def fix_mirror_padding(ann):
     """Deal with duplicated instances due to mirroring in interpolation
     during shape augmentation (scale, rotation etc.).
-    
+
     """
     current_max_id = np.amax(ann)
     inst_list = list(np.unique(ann))
@@ -53,9 +55,10 @@ def fix_mirror_padding(ann):
         current_max_id = np.amax(ann)
     return ann
 
+
 def gen_instance_hv_map(ann, crop_shape):
     """Input annotation must be of original shape.
-    
+
     The map is calculated only for instances within the crop portion
     but based on the original shape in original image.
 
@@ -64,13 +67,13 @@ def gen_instance_hv_map(ann, crop_shape):
     nuclear instance.
 
     """
-    #print(ann.shape)
+    # print(ann.shape)
     orig_ann = ann.copy()  # instance ID map
     fixed_ann = fix_mirror_padding(orig_ann)
-    #print(fixed_ann.shape)
+    # print(fixed_ann.shape)
     # re-cropping with fixed instance id map
     crop_ann = cropping_center(fixed_ann, crop_shape)
-    #print(crop_ann.shape)
+    # print(crop_ann.shape)
     # TODO: deal with 1 label warning
     crop_ann = morph.remove_small_objects(crop_ann, min_size=30)
 
@@ -80,7 +83,7 @@ def gen_instance_hv_map(ann, crop_shape):
     inst_list = list(np.unique(crop_ann))
     inst_list.remove(0)  # 0 is background
     for inst_id in inst_list:
-        #print(inst_id)
+        # print(inst_id)
         inst_map = np.array(fixed_ann == inst_id, np.uint8)
         inst_box = get_bounding_box(inst_map)
 
@@ -92,7 +95,7 @@ def gen_instance_hv_map(ann, crop_shape):
         inst_box[1] += 2
         inst_box[3] += 2
 
-        inst_map = inst_map[inst_box[0] : inst_box[1], inst_box[2] : inst_box[3]]
+        inst_map = inst_map[inst_box[0]:inst_box[1], inst_box[2]:inst_box[3]]
 
         if inst_map.shape[0] < 2 or inst_map.shape[1] < 2:
             continue
@@ -129,10 +132,10 @@ def gen_instance_hv_map(ann, crop_shape):
             inst_y[inst_y > 0] /= np.amax(inst_y[inst_y > 0])
 
         ####
-        x_map_box = x_map[inst_box[0] : inst_box[1], inst_box[2] : inst_box[3]]
+        x_map_box = x_map[inst_box[0]:inst_box[1], inst_box[2]:inst_box[3]]
         x_map_box[inst_map > 0] = inst_x[inst_map > 0]
 
-        y_map_box = y_map[inst_box[0] : inst_box[1], inst_box[2] : inst_box[3]]
+        y_map_box = y_map[inst_box[0]:inst_box[1], inst_box[2]:inst_box[3]]
         y_map_box[inst_map > 0] = inst_y[inst_map > 0]
 
     hv_map = np.dstack([x_map, y_map])
@@ -155,17 +158,18 @@ def gen_targets(ann, crop_shape):
 
     return target_dict
 
+
 def remove_small_objects(pred, min_size=64, connectivity=1):
     """Remove connected components smaller than the specified size.
 
-    This function is taken from skimage.morphology.remove_small_objects, but the warning
-    is removed when a single label is provided. 
+    This function is taken from skimage.morphology.remove_small_objects,
+    but the warning is removed when a single label is provided.
 
     Args:
         pred: input labelled array
         min_size: minimum size of instance in output array
-        connectivity: The connectivity defining the neighborhood of a pixel. 
-    
+        connectivity: The connectivity defining the neighborhood of a pixel.
+
     Returns:
         out: output array with instances removed under min_size
 

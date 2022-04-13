@@ -34,15 +34,15 @@ class ResNetExt(ResNet):
     @staticmethod
     def resnet50(num_input_channels, pretrained=None):
         model = ResNetExt(ResNetBottleneck, [3, 4, 6, 3])
-        model.conv1 = nn.Conv2d(
-            num_input_channels, 64, 7, stride=1, padding=3)
+        model.conv1 = nn.Conv2d(num_input_channels, 64, 7, stride=1, padding=3)
         if pretrained is not None and os.path.exists(pretrained):
             print(f"Loading: {pretrained}")
             pretrained = torch.load(pretrained)
-            (
-                missing_keys, unexpected_keys
-            ) = model.load_state_dict(pretrained, strict=False)
+            (missing_keys, unexpected_keys) = model.load_state_dict(
+                pretrained, strict=False
+            )
         elif not os.path.exists(pretrained):
-            assert os.path.exists(pretrained), \
-                f"Pretrained path is not valid: {pretrained}"
+            assert os.path.exists(
+                pretrained
+            ), f"Pretrained path is not valid: {pretrained}"
         return model

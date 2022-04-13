@@ -16,8 +16,8 @@ def valid_step(epoch, step, batch_data, model, device="cuda"):
     imgs_gpu = imgs_gpu.permute(0, 3, 1, 2).contiguous()
 
     # HWC
-    ##true_np = torch.squeeze(true_np).to(device).type(torch.int64)
-    ##true_hv = torch.squeeze(true_hv).to(device).type(torch.float32)
+    # true_np = torch.squeeze(true_np).to(device).type(torch.int64)
+    # true_hv = torch.squeeze(true_hv).to(device).type(torch.float32)
 
     true_dict = {
         "np": true_np,
@@ -32,9 +32,10 @@ def valid_step(epoch, step, batch_data, model, device="cuda"):
     # --------------------------------------------------------------
     with torch.no_grad():  # dont compute gradient
         pred_dict = model(imgs_gpu)
-        pred_dict = OrderedDict(
-            [[k, v.permute(0, 2, 3, 1).contiguous()] for k, v in pred_dict.items()]
-        )
+        pred_list = []
+        for k, v in pred_dict.items():
+            pred_list.append([k, v.permute(0, 2, 3, 1).contiguous()])
+        pred_dict = OrderedDict(pred_list)
         pred_dict["np"] = F.softmax(pred_dict["np"], dim=-1)[..., 1]
         if model.num_types is not None:
             type_map = F.softmax(pred_dict["tp"], dim=-1)
@@ -42,7 +43,8 @@ def valid_step(epoch, step, batch_data, model, device="cuda"):
             type_map = type_map.type(torch.float32)
             pred_dict["tp"] = type_map
 
-    # * Its up to user to define the protocol to process the raw output per step!
+    # * Its up to user to define the protocol to
+    # process the raw output per step!
     result_dict = {  # protocol for contents exchange within `raw`
         "raw": {
             "imgs": imgs.numpy(),

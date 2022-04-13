@@ -8,7 +8,7 @@ def xentropy_loss(true, pred, reduction="mean"):
     Args:
         pred: prediction array
         true: ground truth array
-    
+
     Returns:
         cross entropy loss
 
@@ -25,11 +25,13 @@ def xentropy_loss(true, pred, reduction="mean"):
 
 ####
 def dice_loss(true, pred, smooth=1e-3):
-    """`pred` and `true` must be of torch.float32. Assuming of shape NxHxWxC."""
+    """`pred` and `true` must be of torch.float32.
+    Assuming of shape NxHxWxC.
+    """
     inse = torch.sum(pred * true, (0, 1, 2))
-    l = torch.sum(pred, (0, 1, 2))
-    r = torch.sum(true, (0, 1, 2))
-    loss = 1.0 - (2.0 * inse + smooth) / (l + r + smooth)
+    pred_sum = torch.sum(pred, (0, 1, 2))
+    true_sum = torch.sum(true, (0, 1, 2))
+    loss = 1.0 - (2.0 * inse + smooth) / (pred_sum + true_sum + smooth)
     loss = torch.sum(loss)
     return loss
 
@@ -42,8 +44,8 @@ def mse_loss(true, pred):
         true: ground truth of combined horizontal
               and vertical maps
         pred: prediction of combined horizontal
-              and vertical maps 
-    
+              and vertical maps
+
     Returns:
         loss: mean squared error
 
@@ -55,18 +57,18 @@ def mse_loss(true, pred):
 
 ####
 def msge_loss(true, pred, focus, device="cuda"):
-    """Calculate the mean squared error of the gradients of 
-    horizontal and vertical map predictions. Assumes 
+    """Calculate the mean squared error of the gradients of
+    horizontal and vertical map predictions. Assumes
     channel 0 is Vertical and channel 1 is Horizontal.
 
     Args:
         true:  ground truth of combined horizontal
                and vertical maps
         pred:  prediction of combined horizontal
-               and vertical maps 
+               and vertical maps
         focus: area where to apply loss (we only calculate
                 the loss within the nuclei)
-    
+
     Returns:
         loss:  mean squared error of gradients
 

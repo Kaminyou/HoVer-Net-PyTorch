@@ -11,7 +11,17 @@ loss_opts = {
     "tp": {"bce": 1, "dice": 1},
 }
 
-def train_step(epoch, step, batch_data, model, optimizer, device="cuda", show_step=250, verbose=True):
+
+def train_step(
+    epoch,
+    step,
+    batch_data,
+    model,
+    optimizer,
+    device="cuda",
+    show_step=250,
+    verbose=True,
+):
     # TODO: synchronize the attach protocol
     loss_func_dict = {
         "bce": xentropy_loss,
@@ -21,14 +31,16 @@ def train_step(epoch, step, batch_data, model, optimizer, device="cuda", show_st
     }
     # use 'ema' to add for EMA calculation, must be scalar!
     result_dict = {"EMA": {}}
-    track_value = lambda name, value: result_dict["EMA"].update({name: value})
+
+    def track_value(name, value):
+        result_dict["EMA"].update({name: value})
 
     imgs = batch_data["img"]
     true_np = batch_data["np_map"]
     true_hv = batch_data["hv_map"]
 
-    imgs = imgs.to(device).type(torch.float32)  
-    imgs = imgs.permute(0, 3, 1, 2).contiguous() # to NCHW
+    imgs = imgs.to(device).type(torch.float32)
+    imgs = imgs.permute(0, 3, 1, 2).contiguous()  # to NCHW
 
     # HWC
     true_np = true_np.to(device).type(torch.int64)
@@ -69,7 +81,10 @@ def train_step(epoch, step, batch_data, model, optimizer, device="cuda", show_st
                 loss_args.append(true_np_onehot[..., 1])
                 loss_args.append(device)
             term_loss = loss_func(*loss_args)
-            track_value("loss_%s_%s" % (branch_name, loss_name), term_loss.cpu().item())
+            track_value(
+                "loss_%s_%s" % (branch_name, loss_name),
+                term_loss.cpu().item()
+            )
             loss += loss_weight * term_loss
 
     track_value("overall_loss", loss.cpu().item())
@@ -80,26 +95,34 @@ def train_step(epoch, step, batch_data, model, optimizer, device="cuda", show_st
     optimizer.step()
     ####
     if verbose:
-        print(f"[Epoch {epoch + 1:3d}] {step + 1:4d} || overall_loss {result_dict['EMA']['overall_loss']:.4f}", end='\r')
-    
-    if ((step + 1)% show_step) == 0:
-    # pick 2 random sample from the batch for visualization
+        out = f"[Epoch {epoch + 1:3d}] {step + 1:4d} || "
+        out += f"overall_loss {result_dict['EMA']['overall_loss']:.4f}"
+        print(
+            out,
+            end="\r",
+        )
+
+    if ((step + 1) % show_step) == 0:
+        # pick 2 random sample from the batch for visualization
         sample_indices = torch.randint(0, true_np.shape[0], (2,))
 
         imgs = (imgs[sample_indices]).byte()  # to uint8
         imgs = imgs.permute(0, 2, 3, 1).contiguous().cpu().numpy()
 
         pred_dict["np"] = pred_dict["np"][..., 1]  # return pos only
-        pred_dict = {
-            k: v[sample_indices].detach().cpu().numpy() for k, v in pred_dict.items()
-        }
+        pred_dict_detach = {}
+        for k, v in pred_dict.items():
+            pred_dict_detach[k] = v[sample_indices].detach().cpu().numpy()
+        pred_dict = pred_dict_detach
 
         true_dict["np"] = true_np
-        true_dict = {
-            k: v[sample_indices].detach().cpu().numpy() for k, v in true_dict.items()
-        }
+        true_dict_detach = {}
+        for k, v in true_dict.items():
+            true_dict_detach[k] = v[sample_indices].detach().cpu().numpy()
+        true_dict = true_dict_detach
 
-        # * Its up to user to define the protocol to process the raw output per step!
+        # * Its up to user to define the protocol to
+        # process the raw output per step!
         result_dict["raw"] = {  # protocol for contents exchange within `raw`
             "img": imgs,
             "np": (true_dict["np"], pred_dict["np"]),

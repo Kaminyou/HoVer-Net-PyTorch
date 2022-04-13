@@ -10,8 +10,9 @@ from dataloader.preprocessing import cropping_center
 
 def viz_step_output(raw_data, nr_types=None):
     """
-    `raw_data` will be implicitly provided in the similar format as the 
-    return dict from train/valid step, but may have been accumulated across N running step
+    `raw_data` will be implicitly provided in the similar format as the
+    return dict from train/valid step, but may have been accumulated
+    across N running step
     """
 
     imgs = raw_data["img"]
@@ -20,7 +21,9 @@ def viz_step_output(raw_data, nr_types=None):
     if nr_types is not None:
         true_tp, pred_tp = raw_data["tp"]
 
-    aligned_shape = [list(imgs.shape), list(true_np.shape), list(pred_np.shape)]
+    aligned_shape = [
+        list(imgs.shape), list(true_np.shape), list(pred_np.shape)
+    ]
     aligned_shape = np.min(np.array(aligned_shape), axis=0)[1:3]
 
     cmap = plt.get_cmap("jet")
@@ -64,6 +67,7 @@ def viz_step_output(raw_data, nr_types=None):
         viz_list.append(np.concatenate([true_viz_list, pred_viz_list], axis=0))
     viz_list = np.concatenate(viz_list, axis=0)
     return viz_list
+
 
 def proc_valid_step_output(raw_data, nr_types=None):
     # TODO: add auto populate from main state track list
@@ -109,7 +113,9 @@ def proc_valid_step_output(raw_data, nr_types=None):
             for idx in range(len(raw_data["true_np"])):
                 patch_pred_tp = pred_tp[idx]
                 patch_true_tp = true_tp[idx]
-                inter, total = _dice_info(patch_true_tp, patch_pred_tp, type_id)
+                inter, total = _dice_info(
+                    patch_true_tp, patch_pred_tp, type_id
+                )
                 over_inter += inter
                 over_total += total
             dice_tp = 2 * over_inter / (over_total + 1.0e-8)
@@ -137,7 +143,11 @@ def proc_valid_step_output(raw_data, nr_types=None):
     true_hv = np.array([true_hv[idx] for idx in selected_idx])
     prob_np = np.array([prob_np[idx] for idx in selected_idx])
     pred_hv = np.array([pred_hv[idx] for idx in selected_idx])
-    viz_raw_data = {"img": imgs, "np": (true_np, prob_np), "hv": (true_hv, pred_hv)}
+    viz_raw_data = {
+        "img": imgs,
+        "np": (true_np, prob_np),
+        "hv": (true_hv, pred_hv)
+    }
 
     if nr_types is not None:
         true_tp = np.array([true_tp[idx] for idx in selected_idx])
@@ -148,9 +158,10 @@ def proc_valid_step_output(raw_data, nr_types=None):
 
     return track_dict
 
+
 def random_colors(N, bright=True):
     """Generate random colors.
-    
+
     To get visually distinct colors, generate them in HSV space then
     convert to RGB.
     """
@@ -159,6 +170,7 @@ def random_colors(N, bright=True):
     colors = list(map(lambda c: colorsys.hsv_to_rgb(*c), hsv))
     random.shuffle(colors)
     return colors
+
 
 def visualize_instances_dict(
     input_image, inst_dict, draw_dot=False, type_colour=None, line_thickness=2
@@ -169,7 +181,7 @@ def visualize_instances_dict(
         input_image: input image
         inst_dict: dict of output prediction, defined as in this library
         draw_dot: to draw a dot for each centroid
-        type_colour: a dict of {type_id : (type_name, colour)} , 
+        type_colour: a dict of {type_id : (type_name, colour)} ,
                      `type_id` is from 0-N and `colour` is a tuple of (R, G, B)
         line_thickness: line thickness of contours
     """
@@ -185,7 +197,9 @@ def visualize_instances_dict(
             inst_colour = type_colour[inst_info["type"]][1]
         else:
             inst_colour = (inst_rng_colors[idx]).tolist()
-        cv2.drawContours(overlay, [inst_contour], -1, inst_colour, line_thickness)
+        cv2.drawContours(
+            overlay, [inst_contour], -1, inst_colour, line_thickness
+        )
 
         if draw_dot:
             inst_centroid = inst_info["centroid"]
