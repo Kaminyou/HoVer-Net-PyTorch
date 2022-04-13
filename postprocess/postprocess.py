@@ -88,8 +88,10 @@ def process(pred_map, nr_types=None, return_centroids=False):
     """Post processing script for image tiles.
 
     Args:
-        pred_map: commbined output of tp, np and hv branches, in the same order => [H, W, 4] || 4=(tp, np, h, v)
-        nr_types: number of types considered at output of nc branch
+        pred_map::np.array(H, W, 4)
+            commbined output of tp, np and hv branches, in the same order => [H, W, 4] || 4=(tp, np, h, v)
+        nr_types::int
+            number of types considered at output of nc branch
         overlaid_img: img to overlay the predicted instances upon, `None` means no
         type_colour (dict) : `None` to use random, else overlay instances of a type to colour in the dict
         output_dtype: data type of output

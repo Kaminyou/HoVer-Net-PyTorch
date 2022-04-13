@@ -16,8 +16,8 @@ def valid_step(epoch, step, batch_data, model, device="cuda"):
     imgs_gpu = imgs_gpu.permute(0, 3, 1, 2).contiguous()
 
     # HWC
-    true_np = torch.squeeze(true_np).to(device).type(torch.int64)
-    true_hv = torch.squeeze(true_hv).to(device).type(torch.float32)
+    ##true_np = torch.squeeze(true_np).to(device).type(torch.int64)
+    ##true_hv = torch.squeeze(true_hv).to(device).type(torch.float32)
 
     true_dict = {
         "np": true_np,
