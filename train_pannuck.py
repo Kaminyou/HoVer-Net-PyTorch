@@ -60,7 +60,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--save_path",
         type=str,
-        default="./experiments/",
+        default="./experiments/initial/",
         help="Path to save models"
     )
     args = parser.parse_args()
