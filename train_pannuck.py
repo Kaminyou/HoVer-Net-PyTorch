@@ -119,6 +119,7 @@ if __name__ == "__main__":
             update_accumulated_output(accumulated_output, valid_result_dict)
 
         out_dict = proc_valid_step_output(accumulated_output)
+
         print(
             f"[Epoch {epoch + 1} / {args.epochs}] Val || "
             f"ACC={out_dict['scalar']['np_acc']:.3f} || "
