@@ -71,10 +71,16 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--coco_eval_cat_ids",
-        type=tuple,
-        default=(1, 2)
+        type=str,
+        default="1,2"
     )
     args = parser.parse_args()
+
+    # deal with coco evalution cat ids
+    coco_eval_cat_ids = []
+    for coco_eval_cat_id in args.coco_eval_cat_ids.split(','):
+        coco_eval_cat_ids.append(int(coco_eval_cat_id))
+    args.coco_eval_cat_ids = tuple(coco_eval_cat_ids)
 
     train_dataloader = get_dataloader(
         dataset_type="coco",
