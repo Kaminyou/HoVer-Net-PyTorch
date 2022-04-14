@@ -15,11 +15,13 @@ if __name__ == "__main__":
     parser.add_argument(
         "--train_data_path",
         type=str,
+        required=True,
         help="Path to the config file."
     )
     parser.add_argument(
         "--valid_data_path",
         type=str,
+        required=True,
         help="Path to the config file."
     )
     parser.add_argument(
@@ -37,6 +39,16 @@ if __name__ == "__main__":
         "--device",
         type=str,
         default="cuda"
+    )
+    parser.add_argument(
+        "--num_types",
+        type=int,
+        default=5
+    )
+    parser.add_argument(
+        "--pretrained",
+        type=str,
+        default="./pretrained/resnet50-0676ba61.pth"
     )
     args = parser.parse_args()
 
@@ -58,11 +70,10 @@ if __name__ == "__main__":
         batch_size=2,
         run_mode="val",
     )
-    pretrained_backbone = "/home/kaminyouho/hover_net/" + \
-                          "conic/resnet50-0676ba61.pth"
+
     model = HoVerNetExt(
-        pretrained_backbone=pretrained_backbone,
-        num_types=5,
+        pretrained_backbone=args.pretrained,
+        num_types=args.num_types,
     )
     optimizer = optim.Adam(model.parameters(), lr=1.0e-4, betas=(0.9, 0.999))
 
