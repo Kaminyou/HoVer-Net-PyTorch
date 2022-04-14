@@ -154,7 +154,7 @@ if __name__ == "__main__":
                 dataloader=val_dataloader,
                 model=model,
                 device=args.device,
-                nr_types=args.nr_types,
+                nr_types=args.num_types,
                 cat_ids=args.coco_eval_cat_ids
             )
 
