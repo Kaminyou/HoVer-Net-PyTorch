@@ -10,6 +10,7 @@ from process.train import train_step
 from process.utils import proc_valid_step_output
 from process.validate import valid_step
 from tools.utils import update_accumulated_output
+from tools.coco import coco_evaluation_pipeline
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser("Train model with dataset in COCO format")
@@ -62,6 +63,16 @@ if __name__ == "__main__":
         type=str,
         default="./experiments/initial/",
         help="Path to save models"
+    )
+    parser.add_argument(
+        "--coco_eval_step",
+        type=int,
+        default=5
+    )
+    parser.add_argument(
+        "--coco_eval_cat_ids",
+        type=tuple,
+        default=(1, 2)
     )
     args = parser.parse_args()
 
@@ -118,6 +129,7 @@ if __name__ == "__main__":
             update_accumulated_output(accumulated_output, valid_result_dict)
 
         out_dict = proc_valid_step_output(accumulated_output)
+
         print(
             f"[Epoch {epoch + 1} / {args.epochs}] Val || "
             f"ACC={out_dict['scalar']['np_acc']:.3f} || "
@@ -129,6 +141,15 @@ if __name__ == "__main__":
             torch.save(
                 model.state_dict(),
                 os.path.join(args.save_path, f"epoch_{epoch + 1}.pth")
+            )
+
+        if (epoch + 1) % args.coco_eval_step == 0:
+            coco_evaluation_pipeline(
+                dataloader=val_dataloader,
+                model=model,
+                device=args.device,
+                nr_types=args.nr_types,
+                cat_ids=args.coco_eval_cat_ids
             )
 
     torch.save(
