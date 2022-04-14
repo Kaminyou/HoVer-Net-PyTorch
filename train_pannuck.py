@@ -1,4 +1,5 @@
 import argparse
+import os
 
 import torch
 import torch.optim as optim
@@ -50,6 +51,18 @@ if __name__ == "__main__":
         type=str,
         default="./pretrained/resnet50-0676ba61.pth"
     )
+    parser.add_argument(
+        "--save_step",
+        type=int,
+        default=5,
+        help="Save model for N steps"
+    )
+    parser.add_argument(
+        "--save_path",
+        type=str,
+        default="./experiments/",
+        help="Path to save models"
+    )
     args = parser.parse_args()
 
     train_dataloader = get_dataloader(
@@ -78,6 +91,8 @@ if __name__ == "__main__":
     optimizer = optim.Adam(model.parameters(), lr=1.0e-4, betas=(0.9, 0.999))
 
     model.to(args.device)
+
+    os.makedirs(args.save_path, exist_ok=True)
 
     for epoch in range(args.epochs):
         accumulated_output = {}
@@ -111,4 +126,13 @@ if __name__ == "__main__":
             f"MSE={out_dict['scalar']['hv_mse']:.3f}"
         )
 
-    torch.save(model.state_dict(), "initial.pth")
+        if (epoch + 1) % args.save_step == 0:
+            torch.save(
+                model.state_dict(),
+                os.path.join(args.save_path, f"epoch_{epoch + 1}.pth")
+            )
+
+    torch.save(
+        model.state_dict(),
+        os.path.join(args.save_path, "latest.pth")
+    )
