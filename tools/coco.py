@@ -81,6 +81,19 @@ def infer_for_coco_evaluation(dataloader, model, device, nr_types):
 
 
 def coco_evaluation_pipeline(dataloader, model, device, nr_types, cat_ids):
+    """Pipeline for coco dataset evaluation.
+
+    Args:
+        dataloader (torch.utils.data.DataLoader): dataloader with COCO dataset.
+        model (torch.nn): The HoVer-Net model.
+        device (str): cpu or cuda.
+        nr_types (int): # of types should be output.
+        cat_ids (tuple of int): which category should be evaluated.
+
+    Returns:
+        eval_results (dict): The evaluation results.
+    """
+
     metrics = ["segm", "bbox"]
     coco_metric_names = {
         'mAP': 0,
