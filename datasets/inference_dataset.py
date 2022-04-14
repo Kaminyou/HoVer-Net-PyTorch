@@ -91,4 +91,3 @@ class SingleInferenceDataset(Dataset):
         img = self.load_data(idx)
         img = cropping_center(img, self.input_shape)
         return img
-

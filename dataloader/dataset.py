@@ -16,7 +16,7 @@ def get_dataloader(
     run_mode="train",
     ann_file=None,
     classes=None,
-):  
+):
     if run_mode == "inference_folder":
         dataset = FolderInferenceDataset(
             data_path=data_path, input_shape=input_shape
