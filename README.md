@@ -7,7 +7,8 @@ Unofficial PyTorch implementation of [HoVer-Net](https://arxiv.org/abs/1812.0649
 - [x] Support training with only CPU
 
 ## Quick start
-Please install packages specified in the *requirements.txt*.
+1. Please install packages specified in the *requirements.txt*.
+2. Please download [Pytorch ImageNet ResNet50  pretrained weights](https://download.pytorch.org/models/resnet50-0676ba61.pth) and put it under `./pretrained/`.
 
 ### COCO format input
 If you already have datasets in the COCO format, `train_coco.py` is provided for you to train a HoVer-Net model without any tedious data preprocessing.
