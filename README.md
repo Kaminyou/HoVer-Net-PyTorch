@@ -26,3 +26,5 @@ $ python3 train_coco.py \
     --coco_eval_step [# of steps to evalate] \
     --coco_eval_cat_ids [Categories require evaluation]
 ```
+### Option
+- **`--verbose`**: to show fluctuation of loss at each step.
