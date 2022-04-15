@@ -33,6 +33,11 @@ if __name__ == "__main__":
         default=512
     )
     parser.add_argument(
+        "--batch_size",
+        type=int,
+        default=2
+    )
+    parser.add_argument(
         "--epochs",
         type=int,
         default=100
@@ -86,18 +91,18 @@ if __name__ == "__main__":
         dataset_type="coco",
         ann_file=args.train_coco,
         classes=["negative", "positive"],
-        input_shape=(512, 512),
-        mask_shape=(512, 512),
-        batch_size=2,
+        input_shape=(args.patch_size, args.patch_size),
+        mask_shape=(args.patch_size, args.patch_size),
+        batch_size=args.batch_size,
         run_mode="train",
     )
     val_dataloader = get_dataloader(
         dataset_type="coco",
         ann_file=args.valid_coco,
         classes=["negative", "positive"],
-        input_shape=(512, 512),
-        mask_shape=(512, 512),
-        batch_size=2,
+        input_shape=(args.patch_size, args.patch_size),
+        mask_shape=(args.patch_size, args.patch_size),
+        batch_size=args.batch_size,
         run_mode="val",
     )
 

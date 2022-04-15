@@ -2,7 +2,7 @@
 Unofficial PyTorch implementation of [HoVer-Net](https://arxiv.org/abs/1812.06499), which further allows arbitary input and output size and supports **COCO format**. You can check the official implementation [here](https://github.com/vqdang/hover_net). *This repo simplifies the codes (from **Continuation-passing style** to **Direct style**) from the [CoNiC](https://github.com/vqdang/hover_net/tree/conic) branch in the offiical repository.*
 
 - [x] Codes with direct style (higher readability)
-- [x] Support arbitary input size
+- [x] Support arbitary input image size
 - [x] Support COCO format input
 - [x] Support training with only CPU
 
@@ -16,6 +16,8 @@ If you already have datasets in the COCO format, `train_coco.py` is provided for
 $ python3 train_coco.py \
     --train_coco [Path to the train.json] \
     --valid_coco [Path to the valid.json] \
+    --patch_size [Patch size] \
+    --batch_size [Batch size] \
     --epochs [# of epochs] \
     --device [Device] \
     --num_types [# of categories] \
