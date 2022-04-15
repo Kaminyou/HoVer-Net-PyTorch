@@ -79,6 +79,10 @@ if __name__ == "__main__":
         type=str,
         default="1,2"
     )
+    parser.add_argument(
+        "--verbose",
+        action="store_true"
+    )
     args = parser.parse_args()
 
     # deal with coco evalution cat ids
@@ -127,7 +131,7 @@ if __name__ == "__main__":
                 optimizer=optimizer,
                 device=args.device,
                 show_step=1,
-                verbose=False,
+                verbose=args.verbose,
             )
 
         for step_idx, data in enumerate(val_dataloader):

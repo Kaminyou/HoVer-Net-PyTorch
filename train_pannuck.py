@@ -68,6 +68,10 @@ if __name__ == "__main__":
         default="./experiments/initial/",
         help="Path to save models"
     )
+    parser.add_argument(
+        "--verbose",
+        action="store_true"
+    )
     args = parser.parse_args()
 
     train_dataloader = get_dataloader(
@@ -110,7 +114,7 @@ if __name__ == "__main__":
                 optimizer=optimizer,
                 device=args.device,
                 show_step=1,
-                verbose=True,
+                verbose=args.verbose,
             )
 
         for step_idx, data in enumerate(val_dataloader):
