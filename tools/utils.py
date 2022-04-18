@@ -1,3 +1,6 @@
+import yaml
+
+
 def update_accumulated_output(accumulated_output, step_output):
     step_output = step_output["raw"]
 
@@ -7,3 +10,9 @@ def update_accumulated_output(accumulated_output, step_output):
         else:
             accumulated_output[key] = list(step_value)
     return
+
+
+def read_yaml(yaml_path):
+    with open(yaml_path, "r") as f:
+        config = yaml.load(f, Loader=yaml.SafeLoader)
+    return config
