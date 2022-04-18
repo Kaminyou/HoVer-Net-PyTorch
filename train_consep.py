@@ -9,7 +9,7 @@ from models.hovernet import HoVerNetExt
 from process.train import train_step
 from process.utils import proc_valid_step_output
 from process.validate import valid_step
-from tools.utils import update_accumulated_output, read_yaml, dump_yaml
+from tools.utils import dump_yaml, read_yaml, update_accumulated_output
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser("Train model with PanNuck dataset")
