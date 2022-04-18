@@ -41,8 +41,4 @@ class ResNetExt(ResNet):
             (missing_keys, unexpected_keys) = model.load_state_dict(
                 pretrained, strict=False
             )
-        elif not os.path.exists(pretrained):
-            assert os.path.exists(
-                pretrained
-            ), f"Pretrained path is not valid: {pretrained}"
         return model

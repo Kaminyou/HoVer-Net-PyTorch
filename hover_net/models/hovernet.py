@@ -2,9 +2,9 @@ from collections import OrderedDict
 
 import torch.nn as nn
 
-from models.dense import DenseBlock
-from models.resnet import ResNetExt
-from models.upsample import UpSample2x
+from .dense import DenseBlock
+from .resnet import ResNetExt
+from .upsample import UpSample2x
 
 
 class HoVerNetExt(nn.Module):

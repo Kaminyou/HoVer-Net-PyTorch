@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 
-from models.base import Net
+from .base import Net
 
 
 class DenseBlock(Net):

@@ -1,9 +1,9 @@
 from torch.utils.data import DataLoader
 
-from datasets.coco_dataset import COCODataset
-from datasets.consep_dataset import CoNSePDataset
-from datasets.inference_dataset import (FolderInferenceDataset,
-                                        SingleInferenceDataset)
+from hover_net.datasets.coco_dataset import COCODataset
+from hover_net.datasets.consep_dataset import CoNSePDataset
+from hover_net.datasets.inference_dataset import (FolderInferenceDataset,
+                                                  SingleInferenceDataset)
 
 
 def get_dataloader(

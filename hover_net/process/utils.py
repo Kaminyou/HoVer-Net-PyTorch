@@ -5,7 +5,7 @@ import cv2
 import matplotlib.pyplot as plt
 import numpy as np
 
-from dataloader.preprocessing import cropping_center
+from hover_net.dataloader.preprocessing import cropping_center
 
 
 def viz_step_output(raw_data, nr_types=None):

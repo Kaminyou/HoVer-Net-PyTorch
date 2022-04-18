@@ -3,7 +3,7 @@ from collections import OrderedDict
 import torch
 import torch.nn.functional as F
 
-from models.loss import dice_loss, mse_loss, msge_loss, xentropy_loss
+from hover_net.models.loss import dice_loss, mse_loss, msge_loss, xentropy_loss
 
 loss_opts = {
     "np": {"bce": 1, "dice": 1},

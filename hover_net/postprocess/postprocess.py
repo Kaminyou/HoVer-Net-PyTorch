@@ -5,7 +5,8 @@ import numpy as np
 from scipy.ndimage import binary_fill_holes, measurements
 from skimage.segmentation import watershed
 
-from dataloader.preprocessing import get_bounding_box, remove_small_objects
+from hover_net.dataloader.preprocessing import (get_bounding_box,
+                                                remove_small_objects)
 
 
 def noop(*args, **kargs):

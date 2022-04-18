@@ -3,8 +3,9 @@ import os
 import cv2
 from torch.utils.data import Dataset
 
-from dataloader.preprocessing import cropping_center
-from datasets.hover_dataset import HoVerDatasetBase
+from hover_net.dataloader.preprocessing import cropping_center
+
+from .hover_dataset import HoVerDatasetBase
 
 
 class FolderInferenceDataset(HoVerDatasetBase):
