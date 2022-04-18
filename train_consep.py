@@ -28,8 +28,14 @@ if __name__ == "__main__":
         dataset_type="consep",
         data_path=config["DATA"]["TRAIN_DATA_PATH"],
         with_type=True,
-        input_shape=(config["DATA"]["PATCH_SIZE"], config["DATA"]["PATCH_SIZE"]),
-        mask_shape=(config["DATA"]["PATCH_SIZE"], config["DATA"]["PATCH_SIZE"]),
+        input_shape=(
+            config["DATA"]["PATCH_SIZE"],
+            config["DATA"]["PATCH_SIZE"]
+        ),
+        mask_shape=(
+            config["DATA"]["PATCH_SIZE"],
+            config["DATA"]["PATCH_SIZE"]
+        ),
         batch_size=config["TRAIN"]["BATCH_SIZE"],
         run_mode="train",
     )
@@ -37,8 +43,14 @@ if __name__ == "__main__":
         dataset_type="consep",
         data_path=config["DATA"]["VALID_DATA_PATH"],
         with_type=True,
-        input_shape=(config["DATA"]["PATCH_SIZE"], config["DATA"]["PATCH_SIZE"]),
-        mask_shape=(config["DATA"]["PATCH_SIZE"], config["DATA"]["PATCH_SIZE"]),
+        input_shape=(
+            config["DATA"]["PATCH_SIZE"],
+            config["DATA"]["PATCH_SIZE"]
+        ),
+        mask_shape=(
+            config["DATA"]["PATCH_SIZE"],
+            config["DATA"]["PATCH_SIZE"]
+        ),
         batch_size=config["TRAIN"]["BATCH_SIZE"],
         run_mode="val",
     )
@@ -89,7 +101,10 @@ if __name__ == "__main__":
         if (epoch + 1) % config["LOGGING"]["SAVE_STEP"] == 0:
             torch.save(
                 model.state_dict(),
-                os.path.join(config["LOGGING"]["SAVE_PATH"], f"epoch_{epoch + 1}.pth")
+                os.path.join(
+                    config["LOGGING"]["SAVE_PATH"],
+                    f"epoch_{epoch + 1}.pth"
+                )
             )
 
     torch.save(
