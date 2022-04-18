@@ -1,5 +1,6 @@
 import argparse
 import os
+
 import torch
 import torch.optim as optim
 
@@ -9,7 +10,7 @@ from process.train import train_step
 from process.utils import proc_valid_step_output
 from process.validate import valid_step
 from tools.coco import coco_evaluation_pipeline
-from tools.utils import update_accumulated_output, read_yaml
+from tools.utils import dump_yaml, read_yaml, update_accumulated_output
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser("Train model with dataset in COCO format")
@@ -69,6 +70,13 @@ if __name__ == "__main__":
     model.to(config["TRAIN"]["DEVICE"])
 
     os.makedirs(config["LOGGING"]["SAVE_PATH"], exist_ok=True)
+    dump_yaml(
+        os.path.join(
+            config["LOGGING"]["SAVE_PATH"],
+            "config.yaml"
+        ),
+        config
+    )
 
     for epoch in range(config["TRAIN"]["EPOCHS"]):
         accumulated_output = {}
