@@ -60,6 +60,7 @@ Then
 $ python3 train_coco.py --config [PATH TO THE YAML CONFIG]
 ```
 ### Option
+- **`DATA::NUM_TYPES`**: this should be `(# of types) + 1` (the `background`).
 - **`LOGGING::VERBOSE`**: to show fluctuation of loss at each step.
 
 ## Useful APIs
