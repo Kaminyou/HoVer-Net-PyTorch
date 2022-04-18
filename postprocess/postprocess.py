@@ -28,9 +28,9 @@ def __proc_np_hv(pred):
     """
     pred = np.array(pred, dtype=np.float32)
 
-    blb_raw = pred[..., 0] # prob map
-    h_dir_raw = pred[..., 1] # x-map
-    v_dir_raw = pred[..., 2] # y-map
+    blb_raw = pred[..., 0]  # prob map
+    h_dir_raw = pred[..., 1]  # x-map
+    v_dir_raw = pred[..., 2]  # y-map
 
     # processing
     blb = np.array(blb_raw >= 0.5, dtype=np.int32)

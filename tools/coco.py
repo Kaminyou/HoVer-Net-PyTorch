@@ -133,7 +133,7 @@ def coco_evaluation_pipeline(dataloader, model, device, nr_types, cat_ids):
         cocoEval.params.catIds = cat_ids
         # cocoEval.params.imgIds = self.img_ids
         # cocoEval.params.maxDets = list(proposal_nums)
-        # cocoEval.params.iouThrs = 0.3
+        cocoEval.params.iouThrs = [0.1]
 
         cocoEval.evaluate()
         cocoEval.accumulate()
