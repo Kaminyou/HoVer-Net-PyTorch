@@ -10,7 +10,7 @@ from dataloader.preprocessing import cropping_center, gen_targets
 from datasets.hover_dataset import HoVerDatasetBase
 
 
-class PanNuckDataset(HoVerDatasetBase):
+class CoNSePDataset(HoVerDatasetBase):
     """Data Loader. Loads images from a file list and
     performs augmentation with the albumentation library.
     After augmentation, horizontal and vertical maps are

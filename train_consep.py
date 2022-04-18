@@ -75,7 +75,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     train_dataloader = get_dataloader(
-        dataset_type="pannuck",
+        dataset_type="consep",
         data_path=args.train_data_path,
         with_type=True,
         input_shape=(args.patch_size, args.patch_size),
@@ -84,7 +84,7 @@ if __name__ == "__main__":
         run_mode="train",
     )
     val_dataloader = get_dataloader(
-        dataset_type="pannuck",
+        dataset_type="consep",
         data_path=args.valid_data_path,
         with_type=True,
         input_shape=(args.patch_size, args.patch_size),

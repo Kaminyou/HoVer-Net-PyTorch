@@ -3,7 +3,7 @@ from torch.utils.data import DataLoader
 from datasets.coco_dataset import COCODataset
 from datasets.inference_dataset import (FolderInferenceDataset,
                                         SingleInferenceDataset)
-from datasets.pannuck_dataset import PanNuckDataset
+from datasets.consep_dataset import CoNSePDataset
 
 
 def get_dataloader(
@@ -25,8 +25,8 @@ def get_dataloader(
         dataset = SingleInferenceDataset(
             data_path_list=data_path, input_shape=input_shape
         )
-    elif dataset_type.lower() == "pannuck":
-        dataset = PanNuckDataset(
+    elif dataset_type.lower() == "consep":
+        dataset = CoNSePDataset(
             data_path=data_path,
             with_type=with_type,
             input_shape=input_shape,
