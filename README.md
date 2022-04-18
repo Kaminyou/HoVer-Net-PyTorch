@@ -66,7 +66,7 @@ $ python3 train_coco.py --config [PATH TO THE YAML CONFIG]
 ### Infer for one image
 - **`tools.api.infer_one_image(image_path, model, device, show)`**
 ```python
-from tools.api import infer_one_image
+from hover_net.tools.api import infer_one_image
 
 result = infer_one_image(
     image_path="IMAGE-PATH",
