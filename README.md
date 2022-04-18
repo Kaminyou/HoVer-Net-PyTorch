@@ -61,3 +61,17 @@ $ python3 train_coco.py --config [PATH TO THE YAML CONFIG]
 ```
 ### Option
 - **`LOGGING::VERBOSE`**: to show fluctuation of loss at each step.
+
+## Useful APIs
+### Infer for one image
+- **`tools.api.infer_one_image(image_path, model, device, show)`**
+```python
+from tools.api import infer_one_image
+
+result = infer_one_image(
+    image_path="IMAGE-PATH",
+    model=model,
+    device="cuda",
+    show=True
+)
+```
