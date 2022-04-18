@@ -1,0 +1,16 @@
+DATA:
+  TRAIN_DATA_PATH: "./training_data/consep/consep/train/540x540_164x164/"
+  VALID_DATA_PATH: "./training_data/consep/consep/valid/540x540_164x164/"
+  NUM_TYPES: 5
+  PATCH_SIZE: 540
+TRAIN:
+  DEVICE: "cuda"
+  EPOCHS: 50
+  BATCH_SIZE: 2
+  PRETRAINED: "./pretrained/resnet50-0676ba61.pth"
+MODEL:
+  NUM_TYPES: 5
+LOGGING:
+  SAVE_STEP: 5
+  SAVE_PATH: "./experiments/consep/"
+  VERBOSE: TRUE
