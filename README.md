@@ -10,6 +10,27 @@ Unofficial PyTorch implementation of [HoVer-Net](https://arxiv.org/abs/1812.0649
 1. Please install packages specified in the *requirements.txt*.
 2. Please download [Pytorch ImageNet ResNet50  pretrained weights](https://download.pytorch.org/models/resnet50-0676ba61.pth) and put it under `./pretrained/`.
 
+### CoNSeP dataset
+Please download the [CoNSeP dataset](https://warwick.ac.uk/fac/cross_fac/tia/data/hovernet/consep.zip) (or visit its [website](https://warwick.ac.uk/fac/cross_fac/tia/data/hovernet/)) and follow the [official preprocessing](https://github.com/vqdang/hover_net/blob/master/extract_patches.py) steps. Then, prepare a config file in the yaml format as the following. An example is provided in the `./configs/consep_config.yaml`.
+```yaml
+DATA:
+  TRAIN_DATA_PATH: "./training_data/consep/consep/train/540x540_164x164/"
+  VALID_DATA_PATH: "./training_data/consep/consep/valid/540x540_164x164/"
+  NUM_TYPES: 5
+  PATCH_SIZE: 540
+TRAIN:
+  DEVICE: "cuda"
+  EPOCHS: 50
+  BATCH_SIZE: 2
+  PRETRAINED: "./pretrained/resnet50-0676ba61.pth"
+MODEL:
+  NUM_TYPES: 5
+LOGGING:
+  SAVE_STEP: 5
+  SAVE_PATH: "./experiments/consep/"
+  VERBOSE: TRUE
+```
+Finally, execute `python3 train_coco.py --config [PATH TO THE YAML CONFIG]`
 ### COCO format input
 If you already have datasets in the COCO format, `train_coco.py` is provided for you to train a HoVer-Net model without any tedious data preprocessing.
 Please create a config file in the yaml format first. You can put it in the `./configs/` folder.
