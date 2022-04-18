@@ -12,19 +12,31 @@ Unofficial PyTorch implementation of [HoVer-Net](https://arxiv.org/abs/1812.0649
 
 ### COCO format input
 If you already have datasets in the COCO format, `train_coco.py` is provided for you to train a HoVer-Net model without any tedious data preprocessing.
+Please create a config file in the yaml format first. You can put it in the `./configs/` folder.
+```yaml
+DATA:
+  TRAIN_COCO_JSON: "PATH-TO-THE-TRAIN-JSON"
+  VALID_COCO_JSON: "PATH-TO-THE-VALID-JSON"
+  NUM_TYPES: 3
+  PATCH_SIZE: 512
+TRAIN:
+  DEVICE: "cuda"
+  EPOCHS: 50
+  BATCH_SIZE: 2
+  PRETRAINED: "./pretrained/resnet50-0676ba61.pth"
+EVAL:
+  COCO_EVAL_STEP: 5
+  COCO_EVAL_CAT_IDS: [1, 2]
+MODEL:
+  NUM_TYPES: 3
+LOGGING:
+  SAVE_STEP: 5
+  SAVE_PATH: "./experiments/initial/"
+  VERBOSE: TRUE
+```
+Then
 ```script
-$ python3 train_coco.py \
-    --train_coco [Path to the train.json] \
-    --valid_coco [Path to the valid.json] \
-    --patch_size [Patch size] \
-    --batch_size [Batch size] \
-    --epochs [# of epochs] \
-    --device [Device] \
-    --num_types [# of categories] \
-    --save_step [# of steps to save model weights] \
-    --save_path [Path to save model weights] \
-    --coco_eval_step [# of steps to evalate] \
-    --coco_eval_cat_ids [Categories require evaluation]
+$ python3 train_coco.py --config [PATH TO THE YAML CONFIG]
 ```
 ### Option
-- **`--verbose`**: to show fluctuation of loss at each step.
+- **`LOGGING::VERBOSE`**: to show fluctuation of loss at each step.
