@@ -2,8 +2,7 @@ import matplotlib.pyplot as plt
 
 from hover_net.dataloader import get_dataloader
 from hover_net.postprocess import process
-from hover_net.process import infer_step
-from hover_net.process import visualize_instances_dict
+from hover_net.process import infer_step, visualize_instances_dict
 from hover_net.tools.coco import parse_single_instance
 
 

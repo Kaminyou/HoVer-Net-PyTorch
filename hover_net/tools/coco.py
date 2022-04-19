@@ -10,8 +10,8 @@ from pycocotools.cocoeval import COCOeval
 from pycocotools.mask import encode
 from terminaltables import AsciiTable
 
-from hover_net.postprocess.postprocess import process
-from hover_net.process.infer import infer_step
+from hover_net.postprocess import process
+from hover_net.process import infer_step
 
 
 def parse_single_instance(image_id, single_inst_info):
