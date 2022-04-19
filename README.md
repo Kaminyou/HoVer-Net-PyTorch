@@ -22,8 +22,9 @@ TRAIN:
   DEVICE: "cuda"
   EPOCHS: 50
   BATCH_SIZE: 2
-  PRETRAINED: "./pretrained/resnet50-0676ba61.pth"
 MODEL:
+  BACKBONE: "resnet"
+  PRETRAINED: "./pretrained/resnet50-0676ba61.pth"
   NUM_TYPES: 5
 LOGGING:
   SAVE_STEP: 5
@@ -44,11 +45,12 @@ TRAIN:
   DEVICE: "cuda"
   EPOCHS: 50
   BATCH_SIZE: 2
-  PRETRAINED: "./pretrained/resnet50-0676ba61.pth"
 EVAL:
   COCO_EVAL_STEP: 5
   COCO_EVAL_CAT_IDS: [1, 2]
 MODEL:
+  BACKBONE: "resnet"
+  PRETRAINED: "./pretrained/resnet50-0676ba61.pth"
   NUM_TYPES: 3
 LOGGING:
   SAVE_STEP: 5
@@ -62,6 +64,14 @@ $ python3 train_coco.py --config [PATH TO THE YAML CONFIG]
 ### Option
 - **`DATA::NUM_TYPES`**: this should be `(# of types) + 1` (the `background`).
 - **`LOGGING::VERBOSE`**: to show fluctuation of loss at each step.
+- **`MODEL::BACKBONE`**: currently, `resnet` and `resnext` are provided.
+- **`MODEL::PRETRAINED`**: might be `str` to specify a path or `bool` to load from PyTorch offical one.
+
+### Model options
+| Model | Pretrained  |
+| :---:   | :-: |
+| resnet | `str` |
+| resnext | `bool` |
 
 ## Useful APIs
 ### Infer for one image

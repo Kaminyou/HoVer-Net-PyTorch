@@ -10,7 +10,7 @@ TRAIN:
 MODEL:
   BACKBONE: "resnext" # "resnet"
   PRETRAINED: True #"./pretrained/resnet50-0676ba61.pth"
-  NUM_TYPES: 3
+  NUM_TYPES: 5
 LOGGING:
   SAVE_STEP: 5
   SAVE_PATH: "./experiments/consep/"
