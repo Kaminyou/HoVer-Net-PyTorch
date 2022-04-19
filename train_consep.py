@@ -55,8 +55,9 @@ if __name__ == "__main__":
     )
 
     model = HoVerNetExt(
-        pretrained_backbone=config["TRAIN"]["PRETRAINED"],
-        num_types=config["DATA"]["NUM_TYPES"],
+        backbone_name=config["MODEL"]["BACKBONE"],
+        pretrained_backbone=config["MODEL"]["PRETRAINED"],
+        num_types=config["MODEL"]["NUM_TYPES"],
     )
     optimizer = optim.Adam(model.parameters(), lr=1.0e-4, betas=(0.9, 0.999))
 

@@ -7,9 +7,10 @@ TRAIN:
   DEVICE: "cuda"
   EPOCHS: 50
   BATCH_SIZE: 2
-  PRETRAINED: "./pretrained/resnet50-0676ba61.pth"
 MODEL:
-  NUM_TYPES: 5
+  BACKBONE: "resnext" # "resnet"
+  PRETRAINED: True #"./pretrained/resnet50-0676ba61.pth"
+  NUM_TYPES: 3
 LOGGING:
   SAVE_STEP: 5
   SAVE_PATH: "./experiments/consep/"

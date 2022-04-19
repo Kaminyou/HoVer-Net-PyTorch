@@ -5,6 +5,7 @@ from torch.nn import Upsample
 
 from .dense import DenseBlock
 from .resnet import ResNetExt
+from .resnext import ResNextExt
 
 # from .upsample import UpSample2x
 
@@ -16,6 +17,7 @@ class HoVerNetExt(nn.Module):
         self,
         num_types=None,
         freeze=False,
+        backbone_name="resnet",
         pretrained_backbone=None,
     ):
         super().__init__()
@@ -23,7 +25,10 @@ class HoVerNetExt(nn.Module):
         self.num_types = num_types
         self.output_ch = 3 if num_types is None else 4
 
-        self.backbone = ResNetExt.resnet50(3, pretrained=pretrained_backbone)
+        self.backbone = self.get_backbone(
+            backbone_name, pretrained=pretrained_backbone
+        )
+
         self.conv_bot = nn.Conv2d(
             2048, 1024, 1, stride=1, padding=0, bias=False
         )
@@ -86,6 +91,14 @@ class HoVerNetExt(nn.Module):
 
         # self.upsample2x = UpSample2x()
         self.upsample2x = Upsample(scale_factor=2)
+
+    def get_backbone(self, backbone_name, pretrained):
+        if backbone_name == "resnet":
+            return ResNetExt.resnet50(3, pretrained=pretrained)
+        elif backbone_name == "resnext":
+            return ResNextExt(3, pretrained=pretrained)
+        else:
+            raise NotImplementedError
 
     def forward(self, imgs):
         imgs = imgs / 255.0  # to 0-1 range to match XY
