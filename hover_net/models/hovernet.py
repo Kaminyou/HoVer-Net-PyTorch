@@ -1,10 +1,12 @@
 from collections import OrderedDict
 
 import torch.nn as nn
+from torch.nn import Upsample
 
 from .dense import DenseBlock
 from .resnet import ResNetExt
-from .upsample import UpSample2x
+
+# from .upsample import UpSample2x
 
 
 class HoVerNetExt(nn.Module):
@@ -82,7 +84,8 @@ class HoVerNetExt(nn.Module):
                 )
             )
 
-        self.upsample2x = UpSample2x()
+        # self.upsample2x = UpSample2x()
+        self.upsample2x = Upsample(scale_factor=2)
 
     def forward(self, imgs):
         imgs = imgs / 255.0  # to 0-1 range to match XY
