@@ -56,7 +56,7 @@ def fix_mirror_padding(ann):
     return ann
 
 
-def gen_instance_hv_map(ann, crop_shape, img_id):
+def gen_instance_hv_map(ann, crop_shape):
     """Input annotation must be of original shape.
 
     The map is calculated only for instances within the crop portion
@@ -79,9 +79,12 @@ def gen_instance_hv_map(ann, crop_shape, img_id):
 
     x_map = np.zeros(orig_ann.shape[:2], dtype=np.float32)
     y_map = np.zeros(orig_ann.shape[:2], dtype=np.float32)
-
+    
     inst_list = list(np.unique(crop_ann))
-    inst_list.remove(0)  # 0 is background
+
+    # remove 0 (background)
+    if 0 in inst_list:
+        inst_list.remove(0)  
 
     for inst_id in inst_list:
         # print(inst_id)
@@ -135,9 +138,9 @@ def gen_instance_hv_map(ann, crop_shape, img_id):
     return hv_map
 
 
-def gen_targets(ann, crop_shape, img_id):
+def gen_targets(ann, crop_shape):
     """Generate the targets for the network."""
-    hv_map = gen_instance_hv_map(ann, crop_shape, img_id)
+    hv_map = gen_instance_hv_map(ann, crop_shape)
     np_map = ann.copy()
     np_map[np_map > 0] = 1
 
