@@ -35,14 +35,7 @@ if __name__ == "__main__":
         ann_file=config["DATA"]["TRAIN_COCO_JSON"],
         classes=config["DATA"]["CLASSES"],
         class_mapping=config["DATA"]["CLASS_MAPPING"],
-        input_shape=(
-            config["DATA"]["PATCH_SIZE"]['HEIGHT'],
-            config["DATA"]["PATCH_SIZE"]['WIDTH']
-        ),
-        mask_shape=(
-            config["DATA"]["PATCH_SIZE"]['HEIGHT'],
-            config["DATA"]["PATCH_SIZE"]['WIDTH']
-        ),
+        transform_config=config["DATA"]["TRANSFROM_CONFIG"],
         batch_size=config["TRAIN"]["BATCH_SIZE"],
         run_mode="train",
     )
@@ -51,14 +44,7 @@ if __name__ == "__main__":
         ann_file=config["DATA"]["VALID_COCO_JSON"],
         classes=config["DATA"]["CLASSES"],
         class_mapping=config["DATA"]["CLASS_MAPPING"],
-        input_shape=(
-            config["DATA"]["PATCH_SIZE"]['HEIGHT'],
-            config["DATA"]["PATCH_SIZE"]['WIDTH']
-        ),
-        mask_shape=(
-            config["DATA"]["PATCH_SIZE"]['HEIGHT'],
-            config["DATA"]["PATCH_SIZE"]['WIDTH']
-        ),
+        transform_config=config["DATA"]["TRANSFROM_CONFIG"],
         batch_size=config["TRAIN"]["BATCH_SIZE"],
         run_mode="val",
     )
