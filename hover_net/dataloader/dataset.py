@@ -1,9 +1,8 @@
-from torch.utils.data import DataLoader
-
 from hover_net.datasets.coco_dataset import COCODataset
 from hover_net.datasets.consep_dataset import CoNSePDataset
 from hover_net.datasets.inference_dataset import (FolderInferenceDataset,
                                                   SingleInferenceDataset)
+from torch.utils.data import DataLoader
 
 
 def get_dataloader(
@@ -16,6 +15,7 @@ def get_dataloader(
     run_mode="train",
     ann_file=None,
     classes=None,
+    class_mapping=None,
 ):
     if run_mode == "inference_folder":
         dataset = FolderInferenceDataset(
@@ -41,6 +41,7 @@ def get_dataloader(
         dataset = COCODataset(
             ann_file=ann_file,
             classes=classes,
+            class_mapping=class_mapping,
             input_shape=input_shape,
             mask_shape=mask_shape,
             test_mode=test_mode,
