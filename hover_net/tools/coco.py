@@ -6,12 +6,11 @@ from collections import OrderedDict
 
 import cv2
 import numpy as np
+from hover_net.postprocess import process
+from hover_net.process import infer_step
 from pycocotools.cocoeval import COCOeval
 from pycocotools.mask import encode
 from terminaltables import AsciiTable
-
-from hover_net.postprocess import process
-from hover_net.process import infer_step
 
 
 def parse_single_instance(image_id, single_inst_info):
@@ -130,7 +129,8 @@ def coco_evaluation_pipeline(dataloader, model, device, nr_types, cat_ids):
         coco_det = dataloader.dataset.coco.loadRes(predictions[metric])
 
         cocoEval = COCOeval(dataloader.dataset.coco, coco_det, metric)
-        cocoEval.params.catIds = cat_ids
+        
+        cocoEval.params.catIds = coco_gt.cat_ids if cat_ids is None else cat_ids
         # cocoEval.params.imgIds = self.img_ids
         # cocoEval.params.maxDets = list(proposal_nums)
         cocoEval.params.iouThrs = [0.1]

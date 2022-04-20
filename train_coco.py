@@ -25,21 +25,23 @@ if __name__ == "__main__":
     config = read_yaml(args.config)
 
     # deal with coco evalution cat ids
-    config["EVAL"]["COCO_EVAL_CAT_IDS"] = tuple(
-        config["EVAL"]["COCO_EVAL_CAT_IDS"]
-    )
+    if config["EVAL"]["COCO_EVAL_CAT_IDS"] is not None:
+        config["EVAL"]["COCO_EVAL_CAT_IDS"] = tuple(
+            config["EVAL"]["COCO_EVAL_CAT_IDS"]
+        )
 
     train_dataloader = get_dataloader(
         dataset_type="coco",
         ann_file=config["DATA"]["TRAIN_COCO_JSON"],
-        classes=["negative", "positive"],
+        classes=config["DATA"]["CLASSES"],
+        class_mapping=config["DATA"]["CLASS_MAPPING"],
         input_shape=(
-            config["DATA"]["PATCH_SIZE"],
-            config["DATA"]["PATCH_SIZE"]
+            config["DATA"]["PATCH_SIZE"]['HEIGHT'],
+            config["DATA"]["PATCH_SIZE"]['WIDTH']
         ),
         mask_shape=(
-            config["DATA"]["PATCH_SIZE"],
-            config["DATA"]["PATCH_SIZE"]
+            config["DATA"]["PATCH_SIZE"]['HEIGHT'],
+            config["DATA"]["PATCH_SIZE"]['WIDTH']
         ),
         batch_size=config["TRAIN"]["BATCH_SIZE"],
         run_mode="train",
@@ -47,14 +49,15 @@ if __name__ == "__main__":
     val_dataloader = get_dataloader(
         dataset_type="coco",
         ann_file=config["DATA"]["VALID_COCO_JSON"],
-        classes=["negative", "positive"],
+        classes=config["DATA"]["CLASSES"],
+        class_mapping=config["DATA"]["CLASS_MAPPING"],
         input_shape=(
-            config["DATA"]["PATCH_SIZE"],
-            config["DATA"]["PATCH_SIZE"]
+            config["DATA"]["PATCH_SIZE"]['HEIGHT'],
+            config["DATA"]["PATCH_SIZE"]['WIDTH']
         ),
         mask_shape=(
-            config["DATA"]["PATCH_SIZE"],
-            config["DATA"]["PATCH_SIZE"]
+            config["DATA"]["PATCH_SIZE"]['HEIGHT'],
+            config["DATA"]["PATCH_SIZE"]['WIDTH']
         ),
         batch_size=config["TRAIN"]["BATCH_SIZE"],
         run_mode="val",
