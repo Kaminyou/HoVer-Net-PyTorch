@@ -7,8 +7,7 @@ import torch.nn.functional as F
 def infer_step(batch_data, model, device="cuda"):
     patch_imgs = batch_data
 
-    patch_imgs_gpu = patch_imgs.to(device).type(torch.float32)  # to NCHW
-    patch_imgs_gpu = patch_imgs_gpu.permute(0, 3, 1, 2).contiguous()
+    patch_imgs_gpu = patch_imgs.to(device).type(torch.float32)
 
     ####
     model.eval()  # infer mode

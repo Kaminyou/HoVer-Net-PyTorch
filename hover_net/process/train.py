@@ -2,7 +2,6 @@ from collections import OrderedDict
 
 import torch
 import torch.nn.functional as F
-
 from hover_net.models.loss import dice_loss, mse_loss, msge_loss, xentropy_loss
 
 loss_opts = {
@@ -40,8 +39,7 @@ def train_step(
     true_hv = batch_data["hv_map"]
 
     imgs = imgs.to(device).type(torch.float32)
-    imgs = imgs.permute(0, 3, 1, 2).contiguous()  # to NCHW
-
+    
     # HWC
     true_np = true_np.to(device).type(torch.int64)
     true_hv = true_hv.to(device).type(torch.float32)

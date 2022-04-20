@@ -1,13 +1,13 @@
 import os
 
 import numpy as np
-from imgaug import augmenters as iaa
-
 from hover_net.dataloader.augmentation import (add_to_brightness,
                                                add_to_contrast, add_to_hue,
                                                add_to_saturation,
                                                gaussian_blur, median_blur)
 from hover_net.dataloader.preprocessing import cropping_center, gen_targets
+from imgaug import augmenters as iaa
+from torchvision.transforms.functional import to_tensor
 
 from .hover_dataset import HoVerDatasetBase
 
@@ -86,6 +86,8 @@ class CoNSePDataset(HoVerDatasetBase):
             img = input_augs.augment_image(img)
 
         img = cropping_center(img, self.input_shape)
+        img = to_tensor(img / 255.0)
+
         feed_dict = {"img": img}
 
         inst_map = ann[..., 0]  # HW1 -> HW

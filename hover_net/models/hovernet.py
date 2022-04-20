@@ -101,7 +101,6 @@ class HoVerNetExt(nn.Module):
             raise NotImplementedError
 
     def forward(self, imgs):
-        imgs = imgs / 255.0  # to 0-1 range to match XY
 
         d0, d1, d2, d3 = self.backbone(imgs, self.freeze)
         d3 = self.conv_bot(d3)
