@@ -39,6 +39,10 @@ Please create a config file in the yaml format first. You can put it in the `./c
 DATA:
   TRAIN_COCO_JSON: "PATH-TO-THE-TRAIN-JSON"
   VALID_COCO_JSON: "PATH-TO-THE-VALID-JSON"
+  CLASSES:
+    - "CLS_1"
+    - "CLS_2"
+    - "CLS_3"
   NUM_TYPES: 3
   PATCH_SIZE: 512
 TRAIN:
@@ -62,8 +66,10 @@ Then
 $ python3 train_coco.py --config [PATH TO THE YAML CONFIG]
 ```
 ### Option
+- **`DATA::CLASSES`**: a list specifies classes.
 - **`DATA::NUM_TYPES`**: this should be `(# of types) + 1` (the `background`).
 - **`LOGGING::VERBOSE`**: to show fluctuation of loss at each step.
+- **`EVAL::COCO_EVAL_CAT_IDS`**: the classes required to be evaluated. If it is set to `NULL`, all the classes would be evaluated.
 - **`MODEL::BACKBONE`**: currently, `resnet` and `resnext` are provided.
 - **`MODEL::PRETRAINED`**: might be `str` to specify a path or `bool` to load from PyTorch offical one.
 
