@@ -130,7 +130,7 @@ def coco_evaluation_pipeline(dataloader, model, device, nr_types, cat_ids):
         coco_det = dataloader.dataset.coco.loadRes(predictions[metric])
 
         cocoEval = COCOeval(dataloader.dataset.coco, coco_det, metric)
-        cocoEval.params.catIds = cat_ids
+        cocoEval.params.catIds = coco_gt.getCatIds() if cat_ids is None else cat_ids
         # cocoEval.params.imgIds = self.img_ids
         # cocoEval.params.maxDets = list(proposal_nums)
         cocoEval.params.iouThrs = [0.1]
