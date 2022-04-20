@@ -1,5 +1,5 @@
 DATA:
-  CLASS_MAPPING: "/home/vincentwu/stardist_pytorch/data/category_mapping/H01_30_to_17.json"
+  CLASS_MAPPING: "/home/vincentwu/HoVer-Net-PyTorch/data/category_mapping/H01_30_to_17.json"
   TRAIN_COCO_JSON: "/mnt/dataset/HEMA/315x/old_hema/annotations/old_hema_2022-03-16-2141_train.json"
   VALID_COCO_JSON: "/mnt/dataset/HEMA/315x/old_hema/annotations/old_hema_2022-03-16-2141_val_None.json"
   CLASSES: 
@@ -20,9 +20,8 @@ DATA:
   - 'Polychromatophilic erythroblasts'
   - 'Proerythroblasts'
   - 'Promyelocytes'
-  PATCH_SIZE:
-    HEIGHT: 1120
-    WIDTH: 1696
+  TRANSFROM_CONFIG: "/home/vincentwu/HoVer-Net-PyTorch/configs/train_transform.json"
+
 TRAIN:
   DEVICE: "cuda"
   EPOCHS: 12
@@ -32,9 +31,9 @@ EVAL:
   COCO_EVAL_CAT_IDS: null
 MODEL:
   BACKBONE: "resnet"
-  PRETRAINED: "./pretrained/resnet50-0676ba61.pth"
+  PRETRAINED: "/home/vincentwu/HoVer-Net-PyTorch/pretrained/resnet50-0676ba61.pth"
   NUM_TYPES: 17
 LOGGING:
   SAVE_STEP: 1
-  SAVE_PATH: "./experiments/initial/"
+  SAVE_PATH: "/home/vincentwu/HoVer-Net-PyTorch/experiments/initial/"
   VERBOSE: TRUE

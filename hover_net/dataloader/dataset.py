@@ -16,6 +16,7 @@ def get_dataloader(
     ann_file=None,
     classes=None,
     class_mapping=None,
+    transform_config=None,
 ):
     if run_mode == "inference_folder":
         dataset = FolderInferenceDataset(
@@ -42,8 +43,7 @@ def get_dataloader(
             ann_file=ann_file,
             classes=classes,
             class_mapping=class_mapping,
-            input_shape=input_shape,
-            mask_shape=mask_shape,
+            transform_config=transform_config,
             test_mode=test_mode,
         )
     else:

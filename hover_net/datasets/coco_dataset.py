@@ -3,6 +3,7 @@ import os
 import time
 from collections import defaultdict
 
+import albumentations as albu
 import cv2
 import numpy as np
 from hover_net.dataloader.augmentation import (add_to_brightness,
@@ -80,14 +81,12 @@ class COCODataset(Dataset):
         self,
         ann_file,
         classes,
+        transform_config=None,
         class_mapping=None,
-        input_shape=(512, 512),
-        mask_shape=(512, 512),
         setup_augmentor=True,
         test_mode=False,
         filter_empty_gt=True,
     ):
-
         self.ann_file = ann_file
         self.classes = classes
         if class_mapping is not None:
@@ -95,8 +94,7 @@ class COCODataset(Dataset):
                 self.class_mapping = json.load(f)
         else:
             self.class_mapping = None
-        self.input_shape = input_shape
-        self.mask_shape = mask_shape
+
         self.test_mode = test_mode
         self.filter_empty_gt = filter_empty_gt
 
@@ -109,13 +107,8 @@ class COCODataset(Dataset):
             self.data_infos = [self.data_infos[i] for i in valid_inds]
             # set group flag for the sampler
             self._set_group_flag()
-
-        self.id = 0
-        if setup_augmentor:
-            self.setup_augmentor(0, 0)
-
-        # processing pipeline
-        # self.transform = transform
+        
+        self.transform = albu.load(transform_config, data_format='json')
     
     def _set_group_flag(self):
         """Set flag according to image aspect ratio.
@@ -208,13 +201,6 @@ class COCODataset(Dataset):
 
         return valid_inds
 
-    def setup_augmentor(self, worker_id, seed):
-        self.augmentor = self.__get_augmentation(seed)
-        self.shape_augs = iaa.Sequential(self.augmentor[0])
-        self.input_augs = iaa.Sequential(self.augmentor[1])
-        self.id = self.id + worker_id
-        return
-
     def get_annotation(self, idx):
         """Get COCO annotation by index.
 
@@ -275,26 +261,22 @@ class COCODataset(Dataset):
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
         # augmentation
-        if self.shape_augs is not None:
-            shape_augs = self.shape_augs.to_deterministic()
-            image = shape_augs.augment_image(image)
-            instance_mask = shape_augs.augment_image(instance_mask)
-            category_mask = shape_augs.augment_image(category_mask)
+        transformed = self.transform(image=image, masks=[instance_mask, category_mask])
+        image = transformed['image']
+        instance_mask = np.array(transformed['masks'][0])
+        category_mask = np.array(transformed['masks'][1])
 
-        if self.input_augs is not None:
-            input_augs = self.input_augs.to_deterministic()
-            image = input_augs.augment_image(image)
+        # image = cropping_center(image, self.input_shape)
+        feed_dict = {"img": image, "img_id": img_id}
 
-        image = cropping_center(image, self.input_shape)
-        feed_dict = {"img": image.copy(), "img_id": img_id}
-
-        category_mask = cropping_center(category_mask, self.mask_shape)
+        # category_mask = cropping_center(category_mask, self.mask_shape)
         feed_dict["tp_map"] = category_mask.copy()
 
         if not np.any(category_mask):
             return None
 
-        target_dict = gen_targets(instance_mask.copy(), self.mask_shape, img_id)
+        mask_shape = instance_mask.shape
+        target_dict = gen_targets(instance_mask.copy(), mask_shape)
         feed_dict.update(target_dict)
 
         return feed_dict
@@ -305,92 +287,9 @@ class COCODataset(Dataset):
         img_id = img_info['image_id']
         image = cv2.imread(img_info['filename'])
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-        feed_dict = {"img": image.copy(), "img_id": img_id}
+        transformed = self.transform(image=image)
+        image = transformed['image']
+
+        feed_dict = {"img": image, "img_id": img_id}
 
         return feed_dict
-
-    def __get_augmentation(self, rng):
-        if not self.test_mode:
-            shape_augs = [
-                # * order = ``0`` -> ``cv2.INTER_NEAREST``
-                # * order = ``1`` -> ``cv2.INTER_LINEAR``
-                # * order = ``2`` -> ``cv2.INTER_CUBIC``
-                # * order = ``3`` -> ``cv2.INTER_CUBIC``
-                # * order = ``4`` -> ``cv2.INTER_CUBIC``
-                # ! for pannuke v0, no rotation or translation,
-                # ! just flip to avoid mirror padding
-                # iaa.Affine(
-                #     # scale images to 80-120% of their size,
-                #     # individually per axis
-                #     scale={"x": (0.8, 1.2), "y": (0.8, 1.2)},
-                #     # translate by -A to +A percent (per axis)
-                #     translate_percent={
-                #         "x": (-0.01, 0.01), "y": (-0.01, 0.01)},
-                #     shear=(-5, 5),  # shear by -5 to +5 degrees
-                #     rotate=(-179, 179),  # rotate by -179 to +179 degrees
-                #     order=0,  # use nearest neighbour
-                #     backend="cv2",  # opencv for fast processing
-                #     seed=rng,
-                # ),
-                iaa.Fliplr(0.5, seed=rng),
-                iaa.Flipud(0.5, seed=rng),
-            ]
-
-            input_augs = [
-                iaa.OneOf(
-                    [
-                        iaa.Lambda(
-                            seed=rng,
-                            func_images=lambda *args: gaussian_blur(
-                                *args,
-                                max_ksize=3
-                            ),
-                        ),
-                        iaa.Lambda(
-                            seed=rng,
-                            func_images=lambda *args: median_blur(
-                                *args,
-                                max_ksize=3
-                            ),
-                        ),
-                        iaa.AdditiveGaussianNoise(
-                            loc=0, scale=(0.0, 0.05 * 255), per_channel=0.5
-                        ),
-                    ]
-                ),
-                iaa.Sequential(
-                    [
-                        iaa.Lambda(
-                            seed=rng,
-                            func_images=lambda *args: add_to_hue(
-                                *args, range=(-8, 8)
-                            ),
-                        ),
-                        iaa.Lambda(
-                            seed=rng,
-                            func_images=lambda *args: add_to_saturation(
-                                *args, range=(-0.2, 0.2)
-                            ),
-                        ),
-                        iaa.Lambda(
-                            seed=rng,
-                            func_images=lambda *args: add_to_brightness(
-                                *args, range=(-26, 26)
-                            ),
-                        ),
-                        iaa.Lambda(
-                            seed=rng,
-                            func_images=lambda *args: add_to_contrast(
-                                *args, range=(0.75, 1.25)
-                            ),
-                        ),
-                    ],
-                    random_order=True,
-                ),
-            ]
-        else:
-            shape_augs = [
-            ]
-            input_augs = []
-
-        return shape_augs, input_augs
