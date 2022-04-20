@@ -1,17 +1,67 @@
+import json
 import os
+import time
+from collections import defaultdict
 
+import cv2
 import numpy as np
-from imgaug import augmenters as iaa
-from PIL import Image
-from pycocotools.coco import COCO
-from torch.utils.data import Dataset
-
 from hover_net.dataloader.augmentation import (add_to_brightness,
                                                add_to_contrast, add_to_hue,
                                                add_to_saturation,
                                                gaussian_blur, median_blur)
 from hover_net.dataloader.preprocessing import cropping_center, gen_targets
+from imgaug import augmenters as iaa
+from PIL import Image
+from pycocotools.coco import COCO as _COCO
+from torch.utils.data import Dataset
 
+
+class COCO(_COCO):
+    def __init__(self, annotation_file=None, class_mapping=None):
+        """
+        Constructor of Microsoft COCO helper class for reading and visualizing annotations.
+        :param annotation_file (str): location of annotation file
+        :param image_folder (str): location to the folder that hosts images.
+        :return:
+        """
+        # load dataset
+        self.dataset,self.anns,self.cats,self.imgs = dict(),dict(),dict(),dict()
+        self.imgToAnns, self.catToImgs = defaultdict(list), defaultdict(list)
+        if not annotation_file == None:
+            print('loading annotations into memory...')
+            tic = time.time()
+            dataset = json.load(open(annotation_file, 'r'))
+            assert type(dataset)==dict, 'annotation file format {} not supported'.format(type(dataset))
+            if class_mapping is not None:
+                print('Mapping to new classes')
+                classes = sorted(list(set(class_mapping.values())))
+                new_dataset = []
+                for i, _class in enumerate(classes):
+                    new_dataset.append({
+                        'supercategory': _class,
+                        'name': _class,
+                        'id': i + 1
+                    })
+                class_id_mapping = {}
+                for category in dataset['categories']:
+                    raw_name = category['name']
+                    raw_id = category['id']
+                    new_name = class_mapping[raw_name]
+                    class_id_mapping[raw_id] = classes.index(new_name) + 1
+                new_annotations = []
+                for annotation in dataset['annotations']:
+                    new_annotation = annotation
+                    raw_category_id = new_annotation['category_id']
+                    new_annotation['category_id'] = class_id_mapping[raw_category_id]
+                    new_annotations.append(new_annotation)
+                dataset = {
+                    'images': dataset['images'],
+                    'annotations': new_annotations,
+                    'categories': new_dataset
+                }
+            print('Done (t={:0.2f}s)'.format(time.time()- tic))
+            self.dataset = dataset
+            self.createIndex()
 
 class COCODataset(Dataset):
     """`MS Coco Detection
@@ -30,6 +80,7 @@ class COCODataset(Dataset):
         self,
         ann_file,
         classes,
+        class_mapping=None,
         input_shape=(512, 512),
         mask_shape=(512, 512),
         setup_augmentor=True,
@@ -39,6 +90,11 @@ class COCODataset(Dataset):
 
         self.ann_file = ann_file
         self.classes = classes
+        if class_mapping is not None:
+            with open(class_mapping) as f:
+                self.class_mapping = json.load(f)
+        else:
+            self.class_mapping = None
         self.input_shape = input_shape
         self.mask_shape = mask_shape
         self.test_mode = test_mode
@@ -51,6 +107,8 @@ class COCODataset(Dataset):
         if not test_mode:
             valid_inds = self._filter_imgs()
             self.data_infos = [self.data_infos[i] for i in valid_inds]
+            # set group flag for the sampler
+            self._set_group_flag()
 
         self.id = 0
         if setup_augmentor:
@@ -58,7 +116,23 @@ class COCODataset(Dataset):
 
         # processing pipeline
         # self.transform = transform
-        # self.target_transform = target_transform
+    
+    def _set_group_flag(self):
+        """Set flag according to image aspect ratio.
+
+        Images with aspect ratio greater than 1 will be set as group 1,
+        otherwise group 0.
+        """
+        self.flag = np.zeros(len(self), dtype=np.uint8)
+        for i in range(len(self)):
+            img_info = self.data_infos[i]
+            if img_info['width'] / img_info['height'] > 1:
+                self.flag[i] = 1
+
+    def _rand_another(self, idx):
+        """Get another random index from the same group as the given index."""
+        pool = np.where(self.flag == self.flag[idx])[0]
+        return np.random.choice(pool)
 
     def __getitem__(self, idx):
         """Get training/test data after pipeline.
@@ -70,8 +144,14 @@ class COCODataset(Dataset):
             dict: Training/test data (with annotation if `test_mode` is set \
                 True).
         """
-        data = self.prepare_img(idx)
-        return data
+        if self.test_mode:
+            return self.prepare_test_img(idx)
+        while True:
+            data = self.prepare_train_img(idx)
+            if data is None:
+                idx = self._rand_another(idx)
+                continue
+            return data
 
     def __len__(self):
         return len(self.data_infos)
@@ -85,9 +165,8 @@ class COCODataset(Dataset):
         Returns:
             list[dict]: Annotation info from COCO api.
         """
-        self.coco = COCO(ann_file)
+        self.coco = COCO(ann_file, self.class_mapping)
         self.cat_ids = self.coco.getCatIds(catNms=self.classes)
-
         self.cat2label = {cat_id: i for i, cat_id in enumerate(self.cat_ids)}
         self.img_ids = self.coco.getImgIds()
         data_infos = []
@@ -169,9 +248,9 @@ class COCODataset(Dataset):
                 continue
             if ann["category_id"] not in self.cat_ids:
                 continue
-
-            category_id = ann["category_id"]
-            classes_dict[mask_idx] = category_id
+            
+            gt_label = self.cat2label[ann['category_id']]
+            classes_dict[mask_idx] = gt_label
             mask_idx += 1
             instance_mask.append(self.coco.annToMask(ann))
 
@@ -187,16 +266,13 @@ class COCODataset(Dataset):
 
         return instance_mask.astype("int32"), category_mask.astype("int32")
 
-    def prepare_img(self, idx):
+    def prepare_train_img(self, idx):
 
         img_info = self.data_infos[idx]
         instance_mask, category_mask = self.get_annotation(idx)
         img_id = img_info["id"]
-        # PIL image
-        image = Image.open(
-            os.path.join(img_info["data_root"], img_info["filename"])
-        ).convert("RGB")
-        image = np.asarray(image)
+        image = cv2.imread(img_info['filename'])
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
         # augmentation
         if self.shape_augs is not None:
@@ -215,8 +291,21 @@ class COCODataset(Dataset):
         category_mask = cropping_center(category_mask, self.mask_shape)
         feed_dict["tp_map"] = category_mask.copy()
 
-        target_dict = gen_targets(instance_mask.copy(), self.mask_shape)
+        if not np.any(category_mask):
+            return None
+
+        target_dict = gen_targets(instance_mask.copy(), self.mask_shape, img_id)
         feed_dict.update(target_dict)
+
+        return feed_dict
+    
+    def prepare_test_img(self, idx):
+
+        img_info = self.data_infos[idx]
+        img_id = img_info['image_id']
+        image = cv2.imread(img_info['filename'])
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        feed_dict = {"img": image.copy(), "img_id": img_id}
 
         return feed_dict
 
@@ -243,11 +332,6 @@ class COCODataset(Dataset):
                 #     backend="cv2",  # opencv for fast processing
                 #     seed=rng,
                 # ),
-                # set position to 'center' for center crop
-                # else 'uniform' for random crop
-                iaa.CropToFixedSize(
-                    self.input_shape[0], self.input_shape[1], position="center"
-                ),
                 iaa.Fliplr(0.5, seed=rng),
                 iaa.Flipud(0.5, seed=rng),
             ]
@@ -306,11 +390,6 @@ class COCODataset(Dataset):
             ]
         else:
             shape_augs = [
-                # set position to 'center' for center crop
-                # else 'uniform' for random crop
-                iaa.CropToFixedSize(
-                    self.input_shape[0], self.input_shape[1], position="center"
-                )
             ]
             input_augs = []
 

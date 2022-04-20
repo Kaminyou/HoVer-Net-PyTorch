@@ -1,0 +1,40 @@
+DATA:
+  CLASS_MAPPING: "/home/vincentwu/stardist_pytorch/data/category_mapping/H01_30_to_17.json"
+  TRAIN_COCO_JSON: "/mnt/dataset/HEMA/315x/old_hema/annotations/old_hema_2022-03-16-2141_train.json"
+  VALID_COCO_JSON: "/mnt/dataset/HEMA/315x/old_hema/annotations/old_hema_2022-03-16-2141_val_None.json"
+  CLASSES: 
+  - 'Band and PMN'
+  - 'Basophilic erythroblasts'
+  - 'Basophils and precursors'
+  - 'Blasts'
+  - 'Eosinophils and precursors'
+  - 'Histiocytes'
+  - 'Invalid and others'
+  - 'Lymphocytes'
+  - 'Metamyelocytes'
+  - 'Mitosis'
+  - 'Monocytes and precursors'
+  - 'Myelocytes'
+  - 'Orthochromatic erythroblasts'
+  - 'Plasma cells'
+  - 'Polychromatophilic erythroblasts'
+  - 'Proerythroblasts'
+  - 'Promyelocytes'
+  PATCH_SIZE:
+    HEIGHT: 1120
+    WIDTH: 1696
+TRAIN:
+  DEVICE: "cuda"
+  EPOCHS: 12
+  BATCH_SIZE: 2
+EVAL:
+  COCO_EVAL_STEP: 1
+  COCO_EVAL_CAT_IDS: null
+MODEL:
+  BACKBONE: "resnet"
+  PRETRAINED: "./pretrained/resnet50-0676ba61.pth"
+  NUM_TYPES: 17
+LOGGING:
+  SAVE_STEP: 1
+  SAVE_PATH: "./experiments/initial/"
+  VERBOSE: TRUE
