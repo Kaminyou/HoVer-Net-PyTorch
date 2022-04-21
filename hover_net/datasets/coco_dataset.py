@@ -215,6 +215,7 @@ class COCODataset(Dataset):
         category_mask = cropping_center(category_mask, self.mask_shape)
         feed_dict["tp_map"] = category_mask.copy()
 
+        # feed_dict["instance_map"] = instance_mask.copy()
         target_dict = gen_targets(instance_mask.copy(), self.mask_shape)
         feed_dict.update(target_dict)
 
