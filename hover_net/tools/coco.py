@@ -2,16 +2,39 @@ import contextlib
 import copy
 import io
 import itertools
+import json
+import os
+import random
+import string
 from collections import OrderedDict
 
 import cv2
 import numpy as np
+from hover_net.postprocess import process
+from hover_net.process import infer_step
 from pycocotools.cocoeval import COCOeval
 from pycocotools.mask import encode
 from terminaltables import AsciiTable
+from tidecv import TIDE, datasets
 
-from hover_net.postprocess import process
-from hover_net.process import infer_step
+tide_mode_mapping = {"bbox": TIDE.BOX, "segm": TIDE.MASK}
+
+
+def id_generator(size=6, chars=string.ascii_uppercase + string.digits):
+    return ''.join(random.choice(chars) for _ in range(size))
+
+
+class NpEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, np.integer):
+            return int(obj)
+        if isinstance(obj, np.floating):
+            return float(obj)
+        if isinstance(obj, np.ndarray):
+            return obj.tolist()
+        if isinstance(obj, bytes):
+            return obj.decode("utf-8")
+        return super(NpEncoder, self).default(obj)
 
 
 def parse_single_instance(image_id, single_inst_info):
@@ -80,7 +103,14 @@ def infer_for_coco_evaluation(dataloader, model, device, nr_types):
     return detection_list, segmentation_list
 
 
-def coco_evaluation_pipeline(dataloader, model, device, nr_types, cat_ids):
+def coco_evaluation_pipeline(
+    dataloader,
+    model,
+    device,
+    nr_types,
+    cat_ids,
+    tide_evaluation=False
+):
     """Pipeline for coco dataset evaluation.
 
     Args:
@@ -94,7 +124,7 @@ def coco_evaluation_pipeline(dataloader, model, device, nr_types, cat_ids):
         eval_results (dict): The evaluation results.
     """
 
-    metrics = ["segm", "bbox"]
+    metrics = ["bbox", "segm"]
     coco_metric_names = {
         'mAP': 0,
         'mAP_50': 1,
@@ -126,11 +156,31 @@ def coco_evaluation_pipeline(dataloader, model, device, nr_types, cat_ids):
     }
 
     for metric in metrics:
+        if tide_evaluation:
+            temp_file = os.path.join("/tmp", f"{id_generator()}.json")
+            with open(temp_file, "w") as f:
+                json.dump(predictions[metric], f, indent=4, cls=NpEncoder)
+
+            tide = TIDE()
+            # Use TIDE.MASK for masks
+            tide.evaluate(
+                datasets.COCO(dataloader.dataset.ann_file),
+                datasets.COCOResult(temp_file), mode=tide_mode_mapping[metric])
+            # Summarize the results as tables in the console
+            tide.summarize()
+            # Show a summary figure. Specify a folder
+            # and it'll output a png to that folder.
+            tide.plot()
+            os.remove(temp_file)
+
         coco_gt = dataloader.dataset.coco
         coco_det = dataloader.dataset.coco.loadRes(predictions[metric])
 
         cocoEval = COCOeval(dataloader.dataset.coco, coco_det, metric)
-        cocoEval.params.catIds = coco_gt.getCatIds() if cat_ids is None else cat_ids
+        if cat_ids is None:
+            cocoEval.params.catIds = coco_gt.getCatIds()
+        else:
+            cocoEval.params.catIds = cat_ids
         # cocoEval.params.imgIds = self.img_ids
         # cocoEval.params.maxDets = list(proposal_nums)
         cocoEval.params.iouThrs = [0.1]
