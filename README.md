@@ -5,6 +5,7 @@ Unofficial PyTorch implementation of [HoVer-Net](https://arxiv.org/abs/1812.0649
 - [x] Support arbitary input image size
 - [x] Support COCO format input
 - [x] Support training with only CPU
+- [x] Support [TIDE metric](https://github.com/dbolya/tide) evaluation
 
 ## Quick start
 1. Please install packages specified in the *requirements.txt*.
@@ -91,4 +92,17 @@ result = infer_one_image(
     device="cuda",
     show=True
 )
+```
+### TIDE metric
+Besides the standard COCO mAP metric, TIDE is supported.
+- **`tools.coco.coco_evaluation_pipeline(dataloader, model, device, nr_types, cat_ids, tide_evaluation=False`**
+```python
+from hover_net.tools.coco import coco_evaluation_pipeline
+coco_evaluation_pipeline(
+    dataloader=dataloader, 
+    model=model, 
+    device=device, 
+    nr_types=3, 
+    cat_ids=(1, 2),
+    tide_evaluation=True) # Please modify this flag
 ```
