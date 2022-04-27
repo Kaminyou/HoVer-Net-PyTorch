@@ -98,6 +98,7 @@ Besides the standard COCO mAP metric, TIDE is supported.
 - **`tools.coco.coco_evaluation_pipeline(dataloader, model, device, nr_types, cat_ids, tide_evaluation=False`**
 ```python
 from hover_net.tools.coco import coco_evaluation_pipeline
+
 coco_evaluation_pipeline(
     dataloader=dataloader, 
     model=model, 
