@@ -90,7 +90,7 @@ result = infer_one_image(
     image_path="IMAGE-PATH",
     model=model,
     device="cuda",
-    show=True
+    show=True,
 )
 ```
 ### TIDE metric
@@ -100,10 +100,11 @@ Besides the standard COCO mAP metric, TIDE is supported.
 from hover_net.tools.coco import coco_evaluation_pipeline
 
 coco_evaluation_pipeline(
-    dataloader=dataloader, 
-    model=model, 
-    device=device, 
-    nr_types=3, 
+    dataloader=dataloader,
+    model=model,
+    device=device,
+    nr_types=3,
     cat_ids=(1, 2),
-    tide_evaluation=True) # Please modify this flag
+    tide_evaluation=True, # Please modify this flag
+)
 ```
